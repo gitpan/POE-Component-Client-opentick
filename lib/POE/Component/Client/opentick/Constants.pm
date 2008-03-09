@@ -28,7 +28,7 @@ BEGIN {
                       OTCommandList  OTDatatype  OTCommandtoAPI  OT64bit
                       OTCanceller
                       has_otlib );
-    $VERSION    = '0.01';
+    $VERSION    = '0.02';
 }
 
 ###

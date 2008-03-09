@@ -29,7 +29,7 @@ BEGIN {
     require Exporter;
     our @ISA    = qw( Exporter );
     our @EXPORT = qw( throw );
-    $VERSION    = '0.01';
+    $VERSION    = '0.02';
 }
 
 *TRUE    = \1;

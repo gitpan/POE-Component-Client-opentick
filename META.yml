@@ -1,11 +1,15 @@
-# http://module-build.sourceforge.net/META-spec.html
-#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
-name:         POE-Component-Client-opentick
-version:      0.01
-version_from: lib/POE/Component/Client/opentick.pm
-installdirs:  site
-requires:
+--- #YAML:1.0
+name:                POE-Component-Client-opentick
+version:             0.02
+abstract:            A POE component for working with opentick.com's market data feeds.
+license:             perl
+author:              
+    - Jason McManus (INFIDEL) <infidel@cpan.org>
+generated_by:        ExtUtils::MakeMaker version 6.44
+distribution_type:   module
+requires:     
+    POE:                           0
     Test::More:                    0
-
-distribution_type: module
-generated_by: ExtUtils::MakeMaker version 6.30
+meta-spec:
+    url:     http://module-build.sourceforge.net/META-spec-v1.3.html
+    version: 1.3

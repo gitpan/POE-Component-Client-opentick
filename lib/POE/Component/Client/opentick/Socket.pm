@@ -28,7 +28,7 @@ use POE::Component::Client::opentick::Error;
 
 use vars qw( $VERSION $TRUE $FALSE $KEEP $DELETE $poe_kernel );
 
-$VERSION = '0.01';
+$VERSION = '0.02';
 *TRUE    = \1;
 *FALSE   = \0;
 *KEEP    = \0;

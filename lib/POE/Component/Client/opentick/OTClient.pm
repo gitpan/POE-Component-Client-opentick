@@ -24,7 +24,7 @@ use POE::Component::Client::opentick;
 
 use vars qw( $VERSION $TRUE $FALSE $poe_kernel );
 
-$VERSION = '0.01';
+$VERSION = '0.02';
 *TRUE    = \1;
 *FALSE   = \0;
 
@@ -132,7 +132,8 @@ sub initialize
             Notifyee        => $self->{alias},  # our alias
             Events          => [ 'all' ],       # events to catch
             ReconnRetries   => 0,               # unlimited
-            Debug           => 1,               # TALK LOTS
+#            Debug           => 1,               # TALK LOTS
+            Quiet           => 1,               # Hush.
             AutoLogin       => 0,               # manual login.
             %args,
     );
@@ -278,9 +279,14 @@ sub requestDividends
 
 sub requestTickSnapshot
 {
-    my( $self, @args ) = @_;
+    my( $self, $exch, $sym, $mask ) = @_;
 
-    return( $self->_issue_request( 'requestTickSnapshot', @args ) );
+    $mask ||= OTConstant( 'OT_MASK_TYPE_QUOTE' ) |
+              OTConstant( 'OT_MASK_TYPE_MMQUOTE' ) |
+              OTConstant( 'OT_MASK_TYPE_TRADE' ) |
+              OTConstant( 'OT_MASK_TYPE_BBO' );
+
+    return( $self->_issue_request( 'requestTickSnapshot', $exch, $sym, $mask ));
 }
 
 sub requestOptionChainSnapshot
@@ -557,7 +563,6 @@ sub _ot_on_data
         $method = $dispatch_cmd->{ $cmd_id };
     }
 
-    print $method, "\n";
     $self->$method( $req_id, $cmd_id, $object );
 
     return;

@@ -28,7 +28,7 @@ use POE::Component::Client::opentick::Socket;
 
 use vars qw( $VERSION $TRUE $FALSE $KEEP $DELETE $poe_kernel );
 
-$VERSION = '0.01';
+$VERSION = '0.02';
 *TRUE    = \1;
 *FALSE   = \0;
 *KEEP    = \0;
@@ -660,8 +660,7 @@ __END__
 
 =head1 NAME
 
-POE::Component::Client::opentick - A POE component for working with
-opentick.com's market data feeds.
+POE::Component::Client::opentick - A POE component for working with opentick.com's market data feeds.
 
 =head1 SYNOPSIS
 

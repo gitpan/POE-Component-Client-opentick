@@ -1,5 +1,9 @@
 Revision history for POE-Component-Client-opentick
 
+0.02    Mar 09, 2008
+        Added examples/ folder
+        Corrected META.yml errors reported by CPANTS
+
 0.01    Mar 09, 2008
         First version, released on an unsuspecting world.
 

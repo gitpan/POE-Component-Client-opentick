@@ -20,4 +20,7 @@ t/13-Output.t
 t/20-Record.t
 t/50-redirect.t
 t/pod-coverage.t
+t/pod.t
+examples/OTClient-example.pl
+examples/opentick-example.pl
 META.yml                                 Module meta-data (added by MakeMaker)
