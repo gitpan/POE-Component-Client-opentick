@@ -30,7 +30,7 @@ use POE::Component::Client::opentick::ProtocolMsg;
 
 use vars qw( $VERSION $TRUE $FALSE $KEEP $DELETE $poe_kernel );
 
-$VERSION = '0.02';
+$VERSION = '0.03';
 *TRUE    = \1;
 *FALSE   = \0;
 *KEEP    = \0;

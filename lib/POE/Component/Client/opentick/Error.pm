@@ -10,7 +10,7 @@ package POE::Component::Client::opentick::Error;
 #
 
 use strict;
-use Carp qw( carp croak confess longmess shortmess );
+use Carp qw( carp croak confess );
 #$Carp::CarpLevel = 10;
 use Data::Dumper;
 
@@ -29,7 +29,7 @@ BEGIN {
     require Exporter;
     our @ISA    = qw( Exporter );
     our @EXPORT = qw( throw );
-    $VERSION    = '0.02';
+    $VERSION    = '0.03';
 }
 
 *TRUE    = \1;
@@ -179,7 +179,7 @@ sub get_request_id
 
 sub _process_longmess
 {
-    my @good = grep { ! /(?:Kernel|Session)/ } longmess();
+    my @good = grep { ! /(?:Kernel|Session)/ } Carp::longmess();
 
     return( join( "\n", @good ) );
 }

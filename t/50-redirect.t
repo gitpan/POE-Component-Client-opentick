@@ -121,7 +121,7 @@ sub client_input_main
     is( $args[2],    1,                 'CommandStatus' );
     is( $args[3],    1,                 'CommandType' );
     is( $args[4],    1,                 'RequestID' );
-    is( $args[5],    2,                 'ProtocolVersion' );
+    is( $args[5],    4,                 'ProtocolVersion' );
     is( $args[6],   20,                 'OSID' );
     is( $args[7],    1,                 'PlatformID' );
     is( $args[8],   '',                 'PlatformIDPwd' );

@@ -28,7 +28,7 @@ BEGIN {
                       OTCommandList  OTDatatype  OTCommandtoAPI  OT64bit
                       OTCanceller
                       has_otlib );
-    $VERSION    = '0.02';
+    $VERSION    = '0.03';
 }
 
 ###
@@ -65,11 +65,15 @@ BEGIN {
 # Try to find the official library to use its constants.
 BEGIN {
     # Check if the OPENTICK_LIB envvar is set, and prepend it to @INC.
-    if( $ENV{OPENTICK_LIB} ) {
-        use lib $ENV{OPENTICK_LIB};
+    if( defined( $ENV{OPENTICK_LIB} ) && length( $ENV{OPENTICK_LIB} )
+                                      && ( -d $ENV{OPENTICK_LIB} ) )
+    {
+        unshift( @INC, $ENV{OPENTICK_LIB} );
     }
     # Check @INC
-    eval {
+    eval
+    {
+        no warnings;
         require opentick::OTConstants;
     };
     unless( $@ )
@@ -89,7 +93,9 @@ BEGIN {
 #        carp( "OT:WARN: Official opentick lib not found; using built-in constants.\n" );
         $OTConstants = {
             OT_CANCEL_MESSAGE       => 'Request cancelled',
-            OT_PROTOCOL_VER         => 4,
+
+#           Force protocol version 4 later.
+#            OT_PROTOCOL_VER         => 4,
 
             OT_MES_REQUEST          => 1,
             OT_MES_RESPONSE         => 2,
@@ -222,7 +228,8 @@ BEGIN {
             OT_PLATFORM_QUANTSTUDIO     => 2,
             OT_PLATFORM_JAVA            => 7,
         };
-    }
+    }   # END otlib parsing
+
     # Newer constants -- not included in perl otFeed OTConstants.pm distro
     # So we'll set them regardless of constant source.
     $OTConstants->{OT_ERR_RECEIVE}                   = 3001;
@@ -235,6 +242,9 @@ BEGIN {
     $OTConstants->{OT_REQUEST_LIST_SYMBOLS_EX}       = 24;
     $OTConstants->{OT_REQUEST_TICK_SNAPSHOT}         = 25;
     $OTConstants->{OT_REQUEST_OPTION_CHAIN_SNAPSHOT} = 26;
+
+    # Force this to 4, overriding the built-in constant values.
+    $OTConstants->{OT_PROTOCOL_VER}             = 4;
 
     ####### My own extensions #######
     ### Response counts
@@ -367,7 +377,7 @@ $OTTemplates = {
         # Requires 64-bit int support built into Perl, but we'll simulate it.
         $OTConstants->{OT_REQUEST_EQUITY_INIT}     =>
             $PERL_64BIT_INT
-                ? 'C a3 C a80 d a8 d a8 d a8 d a8 D a9 a12 C C C'
+                ? 'C a3 C a80 d a8 d a8 d a8 d a8 D  D  a9 a12 C C C'
                 : 'C a3 C a80 d a8 d a8 d a8 d a8 a8 a8 a9 a12 C C C',
         $OTConstants->{OT_REQUEST_OPTION_CHAIN}    => '',
         $OTConstants->{OT_REQUEST_OPTION_CHAIN_EX} => '',
@@ -396,7 +406,7 @@ $OTTemplates = {
         # Requires 64-bit int support built into Perl, but we'll simulate it.
         $OTConstants->{OT_DATATYPE_TRADE}           =>
             $PERL_64BIT_INT
-                ? 'C V d V D V a a C'
+                ? 'C V d V D  V a a C'
                 : 'C V d V a8 V a a C',
         $OTConstants->{OT_DATATYPE_BBO}             => 'C V d V a',
         $OTConstants->{OT_DATATYPE_OHLC}            => 'C V d d d d d',

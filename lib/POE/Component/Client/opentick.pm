@@ -9,7 +9,7 @@ package POE::Component::Client::opentick;
 
 use strict;
 use Socket;
-use Carp qw( croak longmess );
+use Carp qw( croak );
 use Data::Dumper;
 use POE qw( Wheel::SocketFactory Wheel::ReadWrite
             Driver::SysRW        Filter::Stream   );
@@ -28,7 +28,7 @@ use POE::Component::Client::opentick::Socket;
 
 use vars qw( $VERSION $TRUE $FALSE $KEEP $DELETE $poe_kernel );
 
-$VERSION = '0.02';
+$VERSION = '0.03';
 *TRUE    = \1;
 *FALSE   = \0;
 *KEEP    = \0;

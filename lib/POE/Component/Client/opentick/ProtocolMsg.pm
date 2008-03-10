@@ -16,7 +16,7 @@ package POE::Component::Client::opentick::ProtocolMsg;
 #
 
 use strict;
-use Carp qw( croak longmess );
+use Carp qw( croak );
 $Carp::CarpLevel = 2;
 use POE;
 use Data::Dumper;
@@ -34,7 +34,7 @@ use POE::Component::Client::opentick::Output;
 
 use vars qw( $VERSION $TRUE $FALSE $KEEP $DELETE );
 
-$VERSION = '0.02';
+$VERSION = '0.03';
 *TRUE    = \1;
 *FALSE   = \0;
 *KEEP    = \0;
@@ -466,7 +466,7 @@ sub _get_resp_template
         $hex =~ s/\n/ /gms;
 
         $Carp::CarpLevel = 0;
-        print longmess();
+        print Carp::longmess();
 
         my $error = $self->_create_error( "Unhandled packet received: ($hex)",
                                           $req_id, $cmd_id )->throw();

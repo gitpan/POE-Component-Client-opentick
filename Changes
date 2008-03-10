@@ -1,8 +1,13 @@
 Revision history for POE-Component-Client-opentick
 
+0.03    Mar 10, 2008
+        BUG: Corrected 32/64-bit tests, reported by cpantesters
+        BUG: Corrected 'use lib' in Constants.pm:69, reported by cpantesters
+        FIX: Carp in pre-5.8.x didn't export longmess(); use full package call
+
 0.02    Mar 09, 2008
-        Added examples/ folder
-        Corrected META.yml errors reported by CPANTS
+        NEW: Added examples/ folder
+        BUG: Corrected META.yml errors reported by CPANTS
 
 0.01    Mar 09, 2008
         First version, released on an unsuspecting world.

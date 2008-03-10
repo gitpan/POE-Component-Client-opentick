@@ -9,7 +9,7 @@
 #use warnings;
 use Data::Dumper;
 
-use Test::More tests => 88;
+use Test::More tests => 89;
 
 # Test #1: Can use module
 BEGIN { use_ok( 'POE::Component::Client::opentick::Constants' ); }
@@ -51,8 +51,6 @@ is( OTTemplate( "cmds/OT_LOGIN" ), 'v C C a16 a6 a64 a64',
                                     'OTTemplate: cmds/OT_LOGIN' );
 is( OTTemplate( "resp/OT_REQUEST_LIST_SYMBOLS" ), 'a4 a15 C v/a',
                                     'OTTemplate: resp/OT_REQUEST_LIST_SYMBOLS');
-is( OTTemplate( 'datatype/OT_DATATYPE_TRADE' ), 'C V d V a8 V a a C',
-                                    'OTTemplate: datatype/OT_DATATYPE_TRADE' );
 is( OTTemplate( 'borkbork' ),        undef, 'OTTemplate: invalid string' );
 is( OTTemplate( 'brown/SMURF' ),     undef, 'OTTemplate: invalid path' );
 is( OTTemplate( 2222 ),              undef, 'OTTemplate: invalid numeric' );
@@ -210,6 +208,26 @@ is( OT64bit( OTConstant( 'OT_DATATYPE_EQ_INIT' ) ),      2,
                                     'OT64bit: OT_DATATYPE_EQ_INIT' );
 is( OT64bit( OTConstant( 'OT_DATATYPE_TRADE' ) ),           1,
                                     'OT64bit: OT_DATATYPE_TRADE' );
+
+# Test: whether pack template was properly changed by OT64bit
+if( OT64bit( OTConstant( 'OT_DATATYPE_TRADE' ) ) )
+{
+    is( OTTemplate( 'datatype/OT_DATATYPE_TRADE' ),
+        'C V d V a8 V a a C',
+        'OTTemplate: 32-bit datatype/OT_DATATYPE_TRADE' );
+    is( OTTemplate( 'resp/OT_REQUEST_EQUITY_INIT' ),
+        'C a3 C a80 d a8 d a8 d a8 d a8 a8 a8 a9 a12 C C C',
+        'OTTemplate: 32-bit resp/OT_REQUEST_EQUITY_INIT' );
+}
+else
+{
+    is( OTTemplate( 'datatype/OT_DATATYPE_TRADE' ),
+        'C V d V D V a a C',
+        'OTTemplate: 64-bit datatype/OT_DATATYPE_TRADE' );
+    is( OTTemplate( 'resp/OT_REQUEST_EQUITY_INIT' ),
+        'C a3 C a80 d a8 d a8 d a8 d a8 D  D  a9 a12 C C C',
+        'OTTemplate: 64-bit resp/OT_REQUEST_EQUITY_INIT' );
+}
 
 # Test: OTCanceller correctness
 is( OTCanceller( 3 ), 4, 'Canceller: OT_REQUEST_TICK_STREAM' );
