@@ -23,7 +23,7 @@ BEGIN {
     our @EXPORT = qw( pack_binary unpack_binary count_fields check_fields
                       dump_hex    pack_macaddr  is_error     pack_bytes
                       asc2longlong  );
-    $VERSION    = '0.03';
+    $VERSION    = '0.04';
 }
 
 ###

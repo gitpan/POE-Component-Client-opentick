@@ -201,32 +201,39 @@ is( OTDatatype( 1 ),    'OT_DATATYPE_QUOTE',     'OTDatatype: QUOTE' );
 is( OTDatatype( 4 ),    'OT_DATATYPE_BBO',       'OTDatatype: BBO' );
 is( OTDatatype( 51 ),   'OT_DATATYPE_OHL_TODAY', 'OTDatatype: OHL_TODAY' );
 
-# Test: OT64bit correctness
+# Test: 64-bit correctness
 is( OT64bit( 1 ), (), 'OT64bit: nothing' );
 is( OT64bit( 'VROOM' ), (), 'OT64bit: invalid string' );
-is( OT64bit( OTConstant( 'OT_DATATYPE_EQ_INIT' ) ),      2,
-                                    'OT64bit: OT_DATATYPE_EQ_INIT' );
-is( OT64bit( OTConstant( 'OT_DATATYPE_TRADE' ) ),           1,
-                                    'OT64bit: OT_DATATYPE_TRADE' );
 
-# Test: whether pack template was properly changed by OT64bit
-if( OT64bit( OTConstant( 'OT_DATATYPE_TRADE' ) ) )
+eval {
+    no warnings;
+    my $foo = unpack("D","");
+};
+my $PERL_64BIT_INT = $@ ? 0 : 1;
+
+if( $PERL_64BIT_INT )
 {
+    is( OT64bit( OTConstant( 'OT_DATATYPE_EQ_INIT' ) ),         undef,
+                             'OT64bit: OT_DATATYPE_EQ_INIT' );
+    is( OT64bit( OTConstant( 'OT_DATATYPE_TRADE' ) ),           undef,
+                             'OT64bit: OT_DATATYPE_TRADE' );
+    is( OTTemplate( 'datatype/OT_DATATYPE_TRADE' ),
+        'C V d V D V a a C',
+        'OTTemplate: 64-bit datatype/OT_DATATYPE_TRADE' );
+    is( OTTemplate( 'resp/OT_REQUEST_EQUITY_INIT' ),
+        'C a3 C a80 d a8 d a8 d a8 d a8 D D a9 a12 C C C',
+        'OTTemplate: 64-bit resp/OT_REQUEST_EQUITY_INIT' );
+} else {
+    is( OT64bit( OTConstant( 'OT_DATATYPE_EQ_INIT' ) ),         2,
+                             'OT64bit: OT_DATATYPE_EQ_INIT' );
+    is( OT64bit( OTConstant( 'OT_DATATYPE_TRADE' ) ),           1,
+                             'OT64bit: OT_DATATYPE_TRADE' );
     is( OTTemplate( 'datatype/OT_DATATYPE_TRADE' ),
         'C V d V a8 V a a C',
         'OTTemplate: 32-bit datatype/OT_DATATYPE_TRADE' );
     is( OTTemplate( 'resp/OT_REQUEST_EQUITY_INIT' ),
         'C a3 C a80 d a8 d a8 d a8 d a8 a8 a8 a9 a12 C C C',
         'OTTemplate: 32-bit resp/OT_REQUEST_EQUITY_INIT' );
-}
-else
-{
-    is( OTTemplate( 'datatype/OT_DATATYPE_TRADE' ),
-        'C V d V D V a a C',
-        'OTTemplate: 64-bit datatype/OT_DATATYPE_TRADE' );
-    is( OTTemplate( 'resp/OT_REQUEST_EQUITY_INIT' ),
-        'C a3 C a80 d a8 d a8 d a8 d a8 D  D  a9 a12 C C C',
-        'OTTemplate: 64-bit resp/OT_REQUEST_EQUITY_INIT' );
 }
 
 # Test: OTCanceller correctness

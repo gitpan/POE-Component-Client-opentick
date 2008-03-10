@@ -25,7 +25,7 @@ use vars qw( $VERSION $TRUE $FALSE $KEEP $DELETE );
 ### Variables
 ###
 
-$VERSION = '0.03';
+$VERSION = '0.04';
 *TRUE    = \1;
 *FALSE   = \0;
 *KEEP    = \0;

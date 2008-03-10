@@ -28,7 +28,7 @@ BEGIN {
                       OTCommandList  OTDatatype  OTCommandtoAPI  OT64bit
                       OTCanceller
                       has_otlib );
-    $VERSION    = '0.03';
+    $VERSION    = '0.04';
 }
 
 ###
@@ -54,7 +54,6 @@ my $OTDeprecated;           # Deprecated method -> replacement mapping
 my $OT64bit;                # COMPLETE HACK; simulate 64bit on 32bit
 
 # Check for 64-bit support in our perl.
-# UNTESTED.
 BEGIN {
     eval{
         my $foo = unpack("D","");
@@ -377,7 +376,7 @@ $OTTemplates = {
         # Requires 64-bit int support built into Perl, but we'll simulate it.
         $OTConstants->{OT_REQUEST_EQUITY_INIT}     =>
             $PERL_64BIT_INT
-                ? 'C a3 C a80 d a8 d a8 d a8 d a8 D  D  a9 a12 C C C'
+                ? 'C a3 C a80 d a8 d a8 d a8 d a8 D D a9 a12 C C C'
                 : 'C a3 C a80 d a8 d a8 d a8 d a8 a8 a8 a9 a12 C C C',
         $OTConstants->{OT_REQUEST_OPTION_CHAIN}    => '',
         $OTConstants->{OT_REQUEST_OPTION_CHAIN_EX} => '',
@@ -406,7 +405,7 @@ $OTTemplates = {
         # Requires 64-bit int support built into Perl, but we'll simulate it.
         $OTConstants->{OT_DATATYPE_TRADE}           =>
             $PERL_64BIT_INT
-                ? 'C V d V D  V a a C'
+                ? 'C V d V D V a a C'
                 : 'C V d V a8 V a a C',
         $OTConstants->{OT_DATATYPE_BBO}             => 'C V d V a',
         $OTConstants->{OT_DATATYPE_OHLC}            => 'C V d d d d d',

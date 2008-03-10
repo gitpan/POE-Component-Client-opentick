@@ -1,5 +1,8 @@
 Revision history for POE-Component-Client-opentick
 
+0.04    Mar 10, 2008
+        BUG: Corrected more 64-bit tests, as reported by cpantesters
+
 0.03    Mar 10, 2008
         BUG: Corrected 32/64-bit tests, reported by cpantesters
         BUG: Corrected 'use lib' in Constants.pm:69, reported by cpantesters

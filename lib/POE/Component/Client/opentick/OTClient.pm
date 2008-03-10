@@ -24,7 +24,7 @@ use POE::Component::Client::opentick;
 
 use vars qw( $VERSION $TRUE $FALSE $poe_kernel );
 
-$VERSION = '0.03';
+$VERSION = '0.04';
 *TRUE    = \1;
 *FALSE   = \0;
 

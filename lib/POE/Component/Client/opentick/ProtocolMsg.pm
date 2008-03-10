@@ -34,7 +34,7 @@ use POE::Component::Client::opentick::Output;
 
 use vars qw( $VERSION $TRUE $FALSE $KEEP $DELETE );
 
-$VERSION = '0.03';
+$VERSION = '0.04';
 *TRUE    = \1;
 *FALSE   = \0;
 *KEEP    = \0;

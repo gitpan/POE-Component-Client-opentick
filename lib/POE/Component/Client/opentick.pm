@@ -28,7 +28,7 @@ use POE::Component::Client::opentick::Socket;
 
 use vars qw( $VERSION $TRUE $FALSE $KEEP $DELETE $poe_kernel );
 
-$VERSION = '0.03';
+$VERSION = '0.04';
 *TRUE    = \1;
 *FALSE   = \0;
 *KEEP    = \0;
@@ -1182,6 +1182,11 @@ times until I finished the logout code, but I have no control over their
 decision-making process, and this could change at any time.
 
 If your account gets banned, don't cry to me.
+
+=head1 NOTES
+
+Yes, the lowercase "opentick" in the module name was on purpose, to
+correspond with the opentick logo and brand name.
 
 =head1 SEE ALSO
 
