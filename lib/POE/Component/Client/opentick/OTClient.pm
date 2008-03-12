@@ -24,9 +24,9 @@ use POE::Component::Client::opentick;
 
 use vars qw( $VERSION $TRUE $FALSE $poe_kernel );
 
-$VERSION = '0.04';
-*TRUE    = \1;
-*FALSE   = \0;
+($VERSION) = q$Revision: 43 $ =~ /(\d+)/;
+*TRUE      = \1;
+*FALSE     = \0;
 
 my $dispatch_cmd = {
     OTConstant( 'OT_REQUEST_LIST_EXCHANGES' )   => 'onListExchanges',
@@ -404,12 +404,15 @@ sub setPlatformId
     return;
 }
 
-# TODO
 sub getEntityById
 {
-    my( $self ) = @_;
+    my( $self, $req_id ) = @_;
 
-    return;
+    my $requqest = $self->{requests}->{$req_id};
+    my $exchange = $req->{exchange};
+    my $symbol   = $req->{symbol};
+
+    return( $exchange, $symbol );
 }
 
 ########################################################################
@@ -475,8 +478,11 @@ sub _issue_request
 
     # Stash the ReqID and issue time
     $self->{requests}->{$req_id} = {
-            cmd_id  => OTAPItoCommand( $command ),
-            stamp   => time,
+            cmd_id      => OTAPItoCommand( $command ),
+            stamp       => time,
+            # FIXME: These won't always be valid; will fix later.
+            exchange    => $args[0],
+            symbol      => $args[1],
     };
 
     return( $req_id );
@@ -889,7 +895,15 @@ starts the appropriate POE sessions.
 
 =item B<logout( )>
 
-=item B<getEntityById( )>
+=item B<getEntityById( $request_id )>
+
+Works differently from the API; returns a list consisting of the exchange
+and symbol for which the request was issued.  Returns the 2-item list
+directly, rather than storing into an OTDataEntity object.
+
+e.g.
+
+ my( $exchange, $symbol ) = $otclient->getEntityById( $request_id );
 
 =item B<requestTickStream( $exchange, $symbol [, $flags ] )>
 

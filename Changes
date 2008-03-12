@@ -1,5 +1,9 @@
 Revision history for POE-Component-Client-opentick
 
+0.05    Mar 12, 2008
+        ADD: Reimplemented OTClient::getEntityById for facade interface.
+        FIX: Corrected documentation; was referring to incorrect event IDs.
+
 0.04    Mar 10, 2008
         BUG: Corrected more 64-bit tests, as reported by cpantesters
 

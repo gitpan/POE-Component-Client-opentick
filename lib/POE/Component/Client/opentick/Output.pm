@@ -20,7 +20,7 @@ BEGIN {
     require Exporter;
     our @ISA    = qw( Exporter );
     our @EXPORT = qw( O_DEBUG O_INFO O_NOTICE O_WARN O_ERROR );
-    $VERSION    = '0.04';
+    ($VERSION)  = q$Revision: 43 $ =~ /(\d+)/;
 }
 
 ###

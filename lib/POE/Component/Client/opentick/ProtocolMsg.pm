@@ -34,11 +34,11 @@ use POE::Component::Client::opentick::Output;
 
 use vars qw( $VERSION $TRUE $FALSE $KEEP $DELETE );
 
-$VERSION = '0.04';
-*TRUE    = \1;
-*FALSE   = \0;
-*KEEP    = \0;
-*DELETE  = \1;
+($VERSION) = q$Revision: 43 $ =~ /(\d+)/;
+*TRUE      = \1;
+*FALSE     = \0;
+*KEEP      = \0;
+*DELETE    = \1;
 
 my $packet_handler_states = {
     cmds    => {
@@ -621,7 +621,7 @@ __END__
 
 =head1 NAME
 
-POE::Component::Client::opentick::ProtocolMsg -- Individual Protocol message handling.
+POE::Component::Client::opentick::ProtocolMsg -- Individual protocol message handling.
 
 =head1 SYNOPSIS
 

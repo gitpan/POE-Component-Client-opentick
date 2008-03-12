@@ -28,7 +28,7 @@ use POE::Component::Client::opentick::Socket;
 
 use vars qw( $VERSION $TRUE $FALSE $KEEP $DELETE $poe_kernel );
 
-$VERSION = '0.04';
+$VERSION = '0.05';
 *TRUE    = \1;
 *FALSE   = \0;
 *KEEP    = \0;
@@ -717,8 +717,7 @@ It is primarily designed as an interface library, for example, to log to a
 database, rather than a standalone client application to query market data,
 although it will work fine in both regards.
 
-
-=head1 METHODS
+=head1 CONSTRUCTOR
 
 =over 4
 
@@ -876,6 +875,21 @@ to receive status with the suite is via sending and receiving POE events.
 
 =back
 
+=back
+
+=head2 Example
+
+ my $opentick = POE::Component::Client::opentick->spawn(
+        Notifyee => 'myclient',     # POE alias of client session
+        Events   => [ 'all' ],      # Arrayref of events to trap
+        Username => 'Steve',        # Your opentick.com username
+        Password => 'Zissou',       # Your opentick.com password
+ );
+
+=head1 METHODS
+
+=over 4
+
 =item B<initialize( )>
 
 Initialize arguments.  If you are subclassing, overload this, not spawn().
@@ -1009,15 +1023,15 @@ additional arguments, those will be listed and described as well.
 A time saver.  Just registers to receive all events.  You don't even have to
 set up handlers for all of them, just the ones you want.
 
-=item B<on_ot_login>
+=item B<ot_on_login>
 
 Sent upon successful login to the opentick.com server.
 
-=item B<on_ot_logout>
+=item B<ot_on_logout>
 
 Sent upon logout from the opentick.com server.
 
-=item B<on_ot_data>
+=item B<ot_on_data>
 
 Sent upon the receipt of data from a request you have placed.
 
@@ -1028,7 +1042,7 @@ which this is a response to.  For more information on the API calls, see the
 L</OPENTICK API> section below, as well as the L<http://www.opentick.com/>
 home page and documentation wiki.
 
-=item B<on_ot_error>
+=item B<ot_on_error>
 
 Sent upon any type of error.
 
@@ -1059,8 +1073,11 @@ Sent upon failed connection and exhaustion of all retry attempts.
 
 =item B<ot_status_changed>
 
-Sent upon any status change; will double with ot_logged_in, if both are
-caught.
+Sent upon any status change; will be sent as a duplicate request, alongside
+(but slightly later than) ot_on_login.
+
+Primarily exists for compatibility with OTClient.pm, but traps all status
+changes; not just login and logout.
 
 =back
 
@@ -1090,10 +1107,37 @@ which correspond to the opentick.com API:
 
 =item B<requestDividends>
 
-=item B<requestListExchanges>
+=item B<requestOptionInit>
 
-NOTE: You will I<NOT> receive an B<on_request_complete> event upon
-completion of this command.
+=item B<requestHistData>
+
+=item B<requestHistTicks>
+
+=item B<requestTickSnapshot>
+
+=item B<requestOptionChainU>
+
+=item B<requestOptionChainSnapshot>
+
+=item B<requestEquityInit>
+
+=item B<requestBookStream>
+
+=item B<requestBookStreamEx>
+
+=item B<requestHistBooks>
+
+=item B<requestTickStream>
+
+B<NOTE:> Deprecated by opentick.com; use requestTickStreamEx instead.
+
+=item B<requestTickStreamEx>
+
+=item B<requestOptionChain>
+
+B<NOTE:> Deprecated by opentick.com; use requestOptionChainEx instead.
+
+=item B<requestOptionChainEx>
 
 =item B<requestListSymbols>
 
@@ -1104,6 +1148,19 @@ completion of this command.
 
 NOTE: You will I<NOT> receive an B<on_request_complete> event upon
 completion of this command.
+
+=item B<requestListExchanges>
+
+NOTE: You will I<NOT> receive an B<on_request_complete> event upon
+completion of this command.
+
+=item B<cancelTickStream>
+
+=item B<cancelBookStream>
+
+=item B<cancelOptionChain>
+
+=item B<cancelHistData>
 
 =back
 

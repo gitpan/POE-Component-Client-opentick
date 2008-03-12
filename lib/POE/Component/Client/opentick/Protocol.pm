@@ -30,11 +30,11 @@ use POE::Component::Client::opentick::ProtocolMsg;
 
 use vars qw( $VERSION $TRUE $FALSE $KEEP $DELETE $poe_kernel );
 
-$VERSION = '0.04';
-*TRUE    = \1;
-*FALSE   = \0;
-*KEEP    = \0;
-*DELETE  = \1;
+($VERSION) = q$Revision: 43 $ =~ /(\d+)/;
+*TRUE      = \1;
+*FALSE     = \0;
+*KEEP      = \0;
+*DELETE    = \1;
 
 # These arguments are for this object; pass the rest on.
 my %valid_args = (
