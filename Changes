@@ -1,11 +1,19 @@
 Revision history for POE-Component-Client-opentick
 
+0.10    Mar 20, 2008
+        NEW: Expanded functionality of Record::get_data
+        NEW: Added Record::get_data_as_hashref and ::get_data_as_arrayref
+        NEW: Added Constants::OTTradeIndicator and ::OTQuoteIndicator
+        FIX: Optimized opentick::_send_notification
+        DOC: Corrected, clarified and cleaned up documentation throughout.
+        DOC: Documented arguments of all API events in opentick.pm
+
 0.05    Mar 12, 2008
         ADD: Reimplemented OTClient::getEntityById for facade interface.
         FIX: Corrected documentation; was referring to incorrect event IDs.
 
 0.04    Mar 10, 2008
-        BUG: Corrected more 64-bit tests, as reported by cpantesters
+        BUG: Corrected more 64-bit tests, as reported by cpantesters.
 
 0.03    Mar 10, 2008
         BUG: Corrected 32/64-bit tests, reported by cpantesters

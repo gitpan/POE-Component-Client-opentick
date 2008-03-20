@@ -9,7 +9,7 @@
 #use warnings;
 use Data::Dumper;
 
-use Test::More tests => 89;
+use Test::More tests => 99;
 
 # Test #1: Can use module
 BEGIN { use_ok( 'POE::Component::Client::opentick::Constants' ); }
@@ -200,6 +200,20 @@ ok(
 is( OTDatatype( 1 ),    'OT_DATATYPE_QUOTE',     'OTDatatype: QUOTE' );
 is( OTDatatype( 4 ),    'OT_DATATYPE_BBO',       'OTDatatype: BBO' );
 is( OTDatatype( 51 ),   'OT_DATATYPE_OHL_TODAY', 'OTDatatype: OHL_TODAY' );
+
+# Test: OTTradeIndicator correctness
+is( OTTradeIndicator( '@' ), 'Regular Trade',       'OTTradeIndicator: @' );
+is( OTTradeIndicator( 'S' ), 'Split Trade',         'OTTradeIndicator: S' );
+is( OTTradeIndicator( 'E' ), 'Automatic Execution', 'OTTradeIndicator: E' );
+is( OTTradeIndicator( 423 ), undef,       'OTTradeIndicator: invalid num' );
+is( OTTradeIndicator( '/' ), undef,       'OTTradeIndicator: invalid string' );
+
+# Test: OTQuoteIndicator correctness
+is( OTQuoteIndicator( 'A' ), 'Depth on Ask side',   'OTQuoteIndicator: A' );
+is( OTQuoteIndicator( 'O' ), 'Opening Quote',       'OTQuoteIndicator: O' );
+is( OTQuoteIndicator( ' ' ), 'No Special Condition Exists', 'OTQuoteIndicator: null' );
+is( OTQuoteIndicator( 555 ), undef,       'OTQuoteIndicator: invalid num' );
+is( OTQuoteIndicator( '_' ), undef,       'OTQuoteIndicator: invalid string' );
 
 # Test: 64-bit correctness
 is( OT64bit( 1 ), (), 'OT64bit: nothing' );

@@ -26,9 +26,9 @@ BEGIN {
                       OTResponses OTCmdStatus OTMsgType OTEvent  OTEventList
                       OTEventByEvent OTEventByCommand   OTAPItoCommand OTeod
                       OTCommandList  OTDatatype  OTCommandtoAPI  OT64bit
-                      OTCanceller
+                      OTCanceller    OTTradeIndicator   OTQuoteIndicator
                       has_otlib );
-    ($VERSION)  = q$Revision: 43 $ =~ /(\d+)/;
+    ($VERSION)  = q$Revision: 45 $ =~ /(\d+)/;
 }
 
 ###
@@ -50,6 +50,8 @@ my $OTCancels;              # Cancellation command mapping
 my $OTEvents;               # Event alias => name mapping
 my $OTCommandEvents;        # Command => event mapping
 my $OTAPItoCommands;        # API => command mapping
+my $OTTradeIndicators;      # Trade Indicator mapping
+my $OTQuoteIndicators;      # Quote Indicator mapping
 my $OTDeprecated;           # Deprecated method -> replacement mapping
 my $OT64bit;                # COMPLETE HACK; simulate 64bit on 32bit
 
@@ -567,6 +569,58 @@ $OTDeprecated = {
                             => $OTConstants->{OT_REQUEST_OPTION_CHAIN_EX},
 };
 
+$OTTradeIndicators = {
+    '@' =>  'Regular Trade',
+    A   =>  'Acquisition - Cash',
+    B   =>  'Bunched Trade - Average Price',
+    C   =>  'Cash Trade',
+    D   =>  'Distribution - Next Day Market',
+    E   =>  'Automatic Execution',
+    F   =>  'Intermarket Sweep Order',
+    G   =>  'Bunched Sold Trade - Opening/Reopening Trade Detail',
+    H   =>  'Intraday Trade Detail',
+    I   =>  'Basket Index on Close Transaction',
+    J   =>  'Rule 127 Trade (NYSE only)',
+    K   =>  'Rule 155 Trade (AMEX only)',
+    L   =>  'Sold Last',
+    N   =>  'Next Day',
+    O   =>  'Opened',
+    P   =>  'Prior Reference Price',
+    R   =>  'Seller',
+    S   =>  'Split Trade',
+    T   =>  'Form-T Trade - Pre/Post Market Trade',
+    W   =>  'Average Price Trade',
+    Z   =>  'Sold (Out of Sequence)',
+};
+
+$OTQuoteIndicators = {
+    A   =>  'Depth on Ask side',
+    B   =>  'Depth on Bid side',
+    C   =>  'Closing',
+    D   =>  'News Dissemination',
+    E   =>  'Order Influx',
+    F   =>  'Fast Trading',
+    G   =>  'Trading Range Indication',
+    H   =>  'Depth on Bid and Ask',
+    I   =>  'Order Imbalance',
+    J   =>  'Due to Related Security-news Dissemination',
+    K   =>  'Due to Related Security-news Pending',
+    L   =>  'Closed Market Maker (NASDAQ)',
+    M   =>  'No Eligible Market Participant Quotes in Issue at Market Close',
+    N   =>  'Non-Firm Quote',
+    O   =>  'Opening Quote',
+    P   =>  'News Pending',
+    Q   =>  'Additional Information-Due To Related Security',
+    R   =>  'Regular (NASDAQ Open)',
+    S   =>  'Due To Related Security',
+    T   =>  'Resume',
+    V   =>  'In View of Common',
+    X   =>  'Equipment Changeover',
+    Y   =>  'Regular One Sided',
+    Z   =>  'No Open/No Resume',
+    ' ' =>  'No Special Condition Exists',      # space
+};
+
 ########################################################################
 ###   Functions                                                      ###
 ########################################################################
@@ -662,11 +716,25 @@ sub OTCommandtoAPI
     return( $map{ $_[0] } );
 }
 
+# Equity TRADE indicator code to description map
+sub OTTradeIndicator
+{
+    return( $OTTradeIndicators->{ $_[0] } );
+}
+
+# Equity QUOTE indicator code to description map
+sub OTQuoteIndicator
+{
+    return( $OTQuoteIndicators->{ $_[0] } );
+}
+
+# Return the number of responses (a constant) for a command type
 sub OTResponses
 {
     return( $OTResponses->{ $_[0] } );
 }
 
+# Return the suggested command id, if the supplied command id is deprecated
 sub OTDeprecated
 {
     return( $OTDeprecated->{ $_[0] } );
@@ -873,6 +941,16 @@ Return TRUE if the value specifies End-Of-Data for <DataType>.
 =item B<$cmd_num   = OTAPItoCommand( $api_name )>
 
 Return the $command_number for the specified PUBLIC $api_name.
+
+=item B<$description = OTQuoteIndicator( $code )>
+
+Return the description of the supplied Indicator code from an EQUITY quote,
+or undef if not found.
+
+=item B<$description = OTTradeIndicator( $code )>
+
+Return the description of the supplied Indicator code from a TRADE quote,
+or undef if not found.
 
 =item B<$api_name  = OTCommandtoAPI( $cmd_id )>
 

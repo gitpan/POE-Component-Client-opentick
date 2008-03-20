@@ -8,7 +8,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 36;
+use Test::More tests => 42;
 use Data::Dumper;
 
 BEGIN {
@@ -71,6 +71,22 @@ ok(
 
 # Test get_data()
 is( scalar( $obj->get_data() ), 2, 'get_data()' );
+
+# Test get_data( $aryref )
+{
+    my @junk;
+    is( $obj->get_data( \@junk ), 2, 'get_data( \@aryref )' );
+    is( $junk[0], 'gorflutz', '(get_data( \@aryref ))[0] correctness' );
+    is( $junk[1], 'schmeen',  '(get_data( \@aryref ))[1] correctness' );
+}
+
+# Test get_data( $hashref )
+{
+    my %junk;
+    is( $obj->get_data( \%junk ), 2, 'get_data( \%hashref )' );
+    is( $junk{DataType}, 'gorflutz', 'get_data( \%hashref ) correctness' );
+    is( $junk{Price},    'schmeen',  'get_data( \%hashref ) correctness' );
+}
 
 ok(
     defined( $obj->set_datatype( 0 ) )                               &&

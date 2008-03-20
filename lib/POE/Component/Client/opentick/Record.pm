@@ -25,7 +25,7 @@ use vars qw( $VERSION $TRUE $FALSE $KEEP $DELETE );
 ### Variables
 ###
 
-($VERSION) = q$Revision: 43 $ =~ /(\d+)/;
+($VERSION) = q$Revision: 45 $ =~ /(\d+)/;
 *TRUE      = \1;
 *FALSE     = \0;
 *KEEP      = \0;
@@ -232,12 +232,39 @@ sub set_command_id
     return( $self->{commandid} = $cmd_id );
 }
 
-# XXX: Dunno what this should do.  This'll work fine for now.
 sub get_data
+{
+    my $self = shift;
+
+    if( ref( $_[0] ) eq 'ARRAY' )
+    {
+        @{$_[0]} = @{ $self->get_data_as_arrayref() };
+        return( @{ $_[0] } );
+    }
+    elsif( ref( $_[0] ) eq 'HASH' )
+    {
+        %{$_[0]} = %{ $self->get_data_as_hashref() };
+        return( keys( %{ $_[0] } ) );
+    }
+    else
+    {
+        return( @{ $self->{data} } );
+    }
+}
+
+sub get_data_as_hashref
 {
     my( $self ) = @_;
 
-    return( @{ $self->{data} } );
+    my %hash;
+    @hash{ $self->get_field_names() } = @{ $self->{data} };
+
+    return( \%hash );
+}
+
+sub get_data_as_arrayref
+{
+    return( $_[0]->get_raw_data() );
 }
 
 sub get_raw_data
@@ -371,15 +398,57 @@ Set the datatype field of the ::Record object.
 
 Set the command_id field of the ::Record object.
 
-=item B<@values = get_data( )>
+=item I<[ @values = ]> B<get_data(> I<[ $data ]> B<)>
 
-Get the actual data as an @array from the ::Record object.
+Get the actual data from the ::Record object.
+
+This function has 3 forms:
+
+=over 4
+
+=item *
+
+When called with NO ARGUMENTS, it returns an @array (well, a list) of
+all of the data.
+
+=item *
+
+When called with an ARRAYREF argument pointing to an actual variable,
+it stores the data INTO the passed \@arrayref.
+
+=item *
+
+When called with a HASHREF argument pointing to an actual variable,
+it stores the data INTO the passed \%hashref, with keys being set to the
+field names, and values set to the corresponding data.
+
+=back
+
+Example:
+
+ my( %data, @data );
+ my @results = $record->get_data();     # Results in @record.
+ my $count   = $record->get_data( \%data );  # Results in %data
+ my $count   = $record->get_data( \@data );  # Results in @data
 
 =item B<$data   = get_raw_data( )>
 
 Get the raw data as an $arrayref from the ::Record object.
 
-=item B<$string = as_string( [$delimiter] )>
+=item B<$data   = get_data_as_hashref( )>
+
+Get the raw data as a mapped $hashref from the ::Record object.  Keys are
+column names, values are the corresponding data.
+
+Just an explicit form of get_data().
+
+=item B<$data   = get_data_as_arrayref( )>
+
+Get the raw data as an $arrayref from the ::Record object.
+
+Just an explicit form of get_data().
+
+=item B<$string = as_string(> I<[ $delimiter]> B<)>
 
 Get the data from the object as a $string, with fields optionally separated
 by the value of $delimiter.  $delimiter defaults to ' ' (a space).
@@ -428,11 +497,16 @@ build, but it will be in a later version.
 
 =head1 SEE ALSO
 
-POE, POE::Component::Client::opentick
+L<POE> -- Information on the Perl Object Environment
 
-L<http://poe.perl.org>
+L<POE::Component::Client::opentick> -- General documentation on this module
 
-L<http://www.opentick.com/>
+L<POE::Component::Client::opentick::Constants> -- Contains several helper
+methods to expand some data fields you may receive.
+
+L<http://poe.perl.org> -- Official POE site
+
+L<http://www.opentick.com/> -- opentick website
 
 =head1 AUTHOR
 
