@@ -9,7 +9,7 @@
 #use warnings;
 use Data::Dumper;
 
-use Test::More tests => 99;
+use Test::More tests => 101;
 
 # Test #1: Can use module
 BEGIN { use_ok( 'POE::Component::Client::opentick::Constants' ); }
@@ -231,23 +231,33 @@ if( $PERL_64BIT_INT )
                              'OT64bit: OT_DATATYPE_EQ_INIT' );
     is( OT64bit( OTConstant( 'OT_DATATYPE_TRADE' ) ),           undef,
                              'OT64bit: OT_DATATYPE_TRADE' );
-    is( OTTemplate( 'datatype/OT_DATATYPE_TRADE' ),
-        'C V d V D V a a C',
-        'OTTemplate: 64-bit datatype/OT_DATATYPE_TRADE' );
+    is( OT64bit( OTConstant( 'OT_DATATYPE_OHLC' ) ),            undef,
+                             'OT64bit: OT_DATATYPE_OHLC' );
     is( OTTemplate( 'resp/OT_REQUEST_EQUITY_INIT' ),
         'C a3 C a80 d a8 d a8 d a8 d a8 D D a9 a12 C C C',
         'OTTemplate: 64-bit resp/OT_REQUEST_EQUITY_INIT' );
+    is( OTTemplate( 'datatype/OT_DATATYPE_TRADE' ),
+        'C V d V D V a a C',
+        'OTTemplate: 64-bit datatype/OT_DATATYPE_TRADE' );
+    is( OTTemplate( 'datatype/OT_DATATYPE_OHLC' ),
+        'C V d d d d D',
+        'OTTemplate: 64-bit datatype/OT_DATATYPE_OHLC' );
 } else {
     is( OT64bit( OTConstant( 'OT_DATATYPE_EQ_INIT' ) ),         2,
                              'OT64bit: OT_DATATYPE_EQ_INIT' );
     is( OT64bit( OTConstant( 'OT_DATATYPE_TRADE' ) ),           1,
                              'OT64bit: OT_DATATYPE_TRADE' );
-    is( OTTemplate( 'datatype/OT_DATATYPE_TRADE' ),
-        'C V d V a8 V a a C',
-        'OTTemplate: 32-bit datatype/OT_DATATYPE_TRADE' );
+    is( OT64bit( OTConstant( 'OT_DATATYPE_OHLC' ) ),            1,
+                             'OT64bit: OT_DATATYPE_OHLC' );
     is( OTTemplate( 'resp/OT_REQUEST_EQUITY_INIT' ),
         'C a3 C a80 d a8 d a8 d a8 d a8 a8 a8 a9 a12 C C C',
         'OTTemplate: 32-bit resp/OT_REQUEST_EQUITY_INIT' );
+    is( OTTemplate( 'datatype/OT_DATATYPE_TRADE' ),
+        'C V d V a8 V a a C',
+        'OTTemplate: 32-bit datatype/OT_DATATYPE_TRADE' );
+    is( OTTemplate( 'datatype/OT_DATATYPE_OHLC' ),
+        'C V d d d d a8',
+        'OTTemplate: 32-bit datatype/OT_DATATYPE_OHLC' );
 }
 
 # Test: OTCanceller correctness

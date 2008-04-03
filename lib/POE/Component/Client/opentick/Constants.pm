@@ -28,7 +28,7 @@ BEGIN {
                       OTCommandList  OTDatatype  OTCommandtoAPI  OT64bit
                       OTCanceller    OTTradeIndicator   OTQuoteIndicator
                       has_otlib );
-    ($VERSION)  = q$Revision: 45 $ =~ /(\d+)/;
+    ($VERSION)  = q$Revision: 46 $ =~ /(\d+)/;
 }
 
 ###
@@ -410,7 +410,10 @@ $OTTemplates = {
                 ? 'C V d V D V a a C'
                 : 'C V d V a8 V a a C',
         $OTConstants->{OT_DATATYPE_BBO}             => 'C V d V a',
-        $OTConstants->{OT_DATATYPE_OHLC}            => 'C V d d d d d',
+        $OTConstants->{OT_DATATYPE_OHLC}            =>
+            $PERL_64BIT_INT
+                ? 'C V d d d d D'
+                : 'C V d d d d a8',
         $OTConstants->{OT_DATATYPE_OHL_TODAY}       => 'C d d d',
         # requestBookStream*, requestOptionChain*, requestHistBooks
         $OTConstants->{OT_DATATYPE_CANCEL}          => 'C V a21 V',
@@ -427,6 +430,8 @@ $OTTemplates = {
 # A complete hack.  Needed to simulate 64-bit integers in 32-bits.
 $OT64bit = {
     $OTConstants->{OT_DATATYPE_TRADE}        => [ 4 ],
+    $OTConstants->{OT_DATATYPE_OHLC}         => [ 6 ],
+    # This next key seems odd, but is actually correctly numbered.
     $OTConstants->{OT_DATATYPE_EQUITY_INIT}  => [ 12, 13 ],
 };
 

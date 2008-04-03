@@ -1,5 +1,8 @@
 Revision history for POE-Component-Client-opentick
 
+0.11    Apr 3, 2008
+        BUG: Corrected (64-bit) error in pack header for OT_DATATYPE_OHLC
+
 0.10    Mar 20, 2008
         NEW: Expanded functionality of Record::get_data
         NEW: Added Record::get_data_as_hashref and ::get_data_as_arrayref

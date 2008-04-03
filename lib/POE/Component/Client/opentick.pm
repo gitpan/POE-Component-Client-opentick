@@ -28,7 +28,7 @@ use POE::Component::Client::opentick::Socket;
 
 use vars qw( $VERSION $TRUE $FALSE $KEEP $DELETE $poe_kernel );
 
-$VERSION = '0.10';
+$VERSION = '0.11';
 *TRUE    = \1;
 *FALSE   = \0;
 *KEEP    = \0;
@@ -1161,9 +1161,7 @@ The minimum and maximum strike prices for which you wish to filter.
 
 =back
 
-Most other arguments take a range of constants.  See the L<opentick API
-documentation|http://www.opentick.com/dokuwiki/doku.php?id=general:standard>
-for further details.
+Most other arguments take a range of constants.  See the L<opentick API documentation|http://www.opentick.com/dokuwiki/doku.php?id=general:standard> for further details.
 
 =head2 Issuable Events
 

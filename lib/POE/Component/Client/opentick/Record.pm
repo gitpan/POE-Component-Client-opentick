@@ -25,7 +25,7 @@ use vars qw( $VERSION $TRUE $FALSE $KEEP $DELETE );
 ### Variables
 ###
 
-($VERSION) = q$Revision: 45 $ =~ /(\d+)/;
+($VERSION) = q$Revision: 46 $ =~ /(\d+)/;
 *TRUE      = \1;
 *FALSE     = \0;
 *KEEP      = \0;
@@ -192,7 +192,8 @@ sub initialize
     my @fields;
     if( defined( $self->{datatype} )
         && ( $self->{datatype} == OTConstant( 'OT_DATATYPE_TRADE' )
-          || $self->{datatype} == OTConstant( 'OT_DATATYPE_EQ_INIT' ) ) )
+          || $self->{datatype} == OTConstant( 'OT_DATATYPE_EQ_INIT' )
+          || $self->{datatype} == OTConstant( 'OT_DATATYPE_OHLC' ) ) )
     {
         @fields = OT64bit( $self->{datatype} );
     }
