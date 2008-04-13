@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                POE-Component-Client-opentick
-version:             0.11
+version:             0.12
 abstract:            A POE component for working with opentick.com's market data feeds.
 license:             perl
 author:              

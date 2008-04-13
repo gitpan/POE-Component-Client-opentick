@@ -24,7 +24,7 @@ use POE::Component::Client::opentick;
 
 use vars qw( $VERSION $TRUE $FALSE $poe_kernel );
 
-($VERSION) = q$Revision: 43 $ =~ /(\d+)/;
+($VERSION) = q$Revision: 47 $ =~ /(\d+)/;
 *TRUE      = \1;
 *FALSE     = \0;
 
@@ -408,7 +408,7 @@ sub getEntityById
 {
     my( $self, $req_id ) = @_;
 
-    my $requqest = $self->{requests}->{$req_id};
+    my $req      = $self->{requests}->{$req_id};
     my $exchange = $req->{exchange};
     my $symbol   = $req->{symbol};
 

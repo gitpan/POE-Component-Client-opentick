@@ -28,7 +28,7 @@ use POE::Component::Client::opentick::Socket;
 
 use vars qw( $VERSION $TRUE $FALSE $KEEP $DELETE $poe_kernel );
 
-$VERSION = '0.11';
+$VERSION = '0.12';
 *TRUE    = \1;
 *FALSE   = \0;
 *KEEP    = \0;

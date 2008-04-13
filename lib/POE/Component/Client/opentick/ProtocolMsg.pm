@@ -9,9 +9,6 @@ package POE::Component::Client::opentick::ProtocolMsg;
 #   See docs/implementation-notes.txt for a detailed explanation of how
 #     this module works.
 #
-#   Special thanks to _Design Patterns_ for inspiring this module's inner
-#   workings.  It is based on the State pattern therein.  <3 Gang of Four
-#
 #   Full POD documentation after __END__
 #
 
@@ -34,7 +31,7 @@ use POE::Component::Client::opentick::Output;
 
 use vars qw( $VERSION $TRUE $FALSE $KEEP $DELETE );
 
-($VERSION) = q$Revision: 43 $ =~ /(\d+)/;
+($VERSION) = q$Revision: 47 $ =~ /(\d+)/;
 *TRUE      = \1;
 *FALSE     = \0;
 *KEEP      = \0;
@@ -104,13 +101,13 @@ my $packet_handler_states = {
 my %valid_args = (
     alias           => $KEEP,
     debug           => $KEEP,
-    protocolver     => $KEEP,
-    platform        => $KEEP,
-    platformpass    => $KEEP,
-    macaddr         => $KEEP,
-    os              => $KEEP,
-    username        => $KEEP,
-    password        => $KEEP,
+    protocolver     => $DELETE,
+    platform        => $DELETE,
+    platformpass    => $DELETE,
+    macaddr         => $DELETE,
+    os              => $DELETE,
+    username        => $DELETE,
+    password        => $DELETE,
 );
 
 
@@ -155,7 +152,6 @@ sub initialize
     my( $self, %args ) = @_;
 
     # Store things.  Things that make us go.
-    # We're a leaf object, so go ahead and delete.
     for( keys( %args ) )
     {
         $self->{lc $_} = delete( $args{$_} )

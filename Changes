@@ -1,5 +1,11 @@
 Revision history for POE-Component-Client-opentick
 
+0.12    Apr 13, 2008
+        BUG: Corrected misnamed variables that caused OTClient.pm and
+             examples/OTClient-example.pl to fail.  Thanks, bt!
+        FIX: Changed member variable lifetime in ProtocolMsg.pm
+        DOC: Cleaned up documentation a bit more.
+
 0.11    Apr 3, 2008
         BUG: Corrected (64-bit) error in pack header for OT_DATATYPE_OHLC
 
