@@ -28,7 +28,7 @@ use POE::Component::Client::opentick::Error;
 
 use vars qw( $VERSION $TRUE $FALSE $KEEP $DELETE $poe_kernel );
 
-($VERSION) = q$Revision: 43 $ =~ /(\d+)/;
+($VERSION) = q$Revision: 48 $ =~ /(\d+)/;
 *TRUE      = \1;
 *FALSE     = \0;
 *KEEP      = \0;
@@ -76,6 +76,7 @@ sub new
         bindaddress     => undef,
         bindport        => undef,
 #        'socket'        => undef,
+        socket_buffer   => [],      # outgoing socket FIFO
         # Statistical parameters
         packets_sent    => 0,
         packets_recv    => 0,
@@ -235,7 +236,7 @@ sub connect
         $self->_reset_autoreconnect();
 
         $self->{myserver} = $host || $self->_get_server();
-        O_DEBUG( "Connecting to " . $self->{myserver} . "..." );
+        O_NOTICE( "Connecting to " . $self->{myserver} . "..." );
 
         my $wheel = POE::Wheel::SocketFactory->new(
             SocketDomain        => AF_INET,
@@ -275,9 +276,9 @@ sub _ot_sock_connected
 
     my ($port, $addr) = sockaddr_in( getpeername( $socket ) );
 
-    O_DEBUG( sprintf( "Connected to %s [%s]:%s.",
-                      scalar( gethostbyaddr( $addr, AF_INET ) ),
-                      inet_ntoa( $addr ), $port ) );
+    O_NOTICE( sprintf( "Connected to %s [%s]:%s.",
+                       scalar( gethostbyaddr( $addr, AF_INET ) ),
+                       inet_ntoa( $addr ), $port ) );
 
     # We don't need no steenkeen factory anymore.
     delete( $self->{SocketFactory} );
@@ -299,18 +300,14 @@ sub _ot_sock_connected
     $self->_reset_object();
     $self->_set_connect_time( time );
 
-    # Send login command, unless we have been redirected by the OT server
-    if( $self->_is_redirected() )
-    {
-        $self->_set_state( OTConstant( 'OT_STATUS_LOGGED_IN' ) );
-    }
-    else
-    {
-        $self->_set_state( OTConstant( 'OT_STATUS_CONNECTED' ) );
-        $kernel->call( $kernel->get_active_session(),
-                       '_ot_proto_issue_command',
-                       OTConstant( 'OT_LOGIN' ) )
-    }
+    # Send login command
+    $self->_set_state( OTConstant( 'OT_STATUS_CONNECTED' ) );
+    $kernel->call( $kernel->get_active_session(),
+                   '_ot_proto_issue_command',
+                   OTConstant( 'OT_LOGIN' ) );
+
+    # Flush queue, if we have queued up commands
+    $self->_flush_queue();
 
     return;
 }
@@ -413,12 +410,15 @@ sub _ot_sock_send_packet
 {
     my( $self, $packet ) = @_[OBJECT, ARG0];
 
-    O_DEBUG( "_ot_sock_send_packet( " . length( $packet ) . " )" );
+    # Put the packet on the wire, or enqueue
+    my $buffered = $self->_put_or_enqueue( $packet );
 
-    # Put the packet on the wire
-    my $buffered = $self->{'socket'}->put( $packet );
+    # Update the stats if appropriate
+    $self->_update_stats_sent( length( $packet ) ) unless( $buffered );
 
-    $self->_update_stats_sent( length( $packet ) );
+    O_DEBUG( sprintf "_ot_sock_send_packet( %d ): %s",
+                     length( $packet ),
+                     $buffered ? "buffered" : "sent" );
 
     return( $buffered ? $TRUE : $FALSE );
 }
@@ -590,6 +590,46 @@ sub _get_reconn_interval
     my( $self ) = @_;
 
     return( $self->{reconninterval} );
+}
+
+# Put or enqueue user-requested sent packets to FIFO
+sub _put_or_enqueue
+{
+    my( $self, $packet ) = @_;
+
+    my $buffered;
+    if( $self->{'socket'} )
+    {
+        $buffered = $self->{'socket'}->put( $packet );
+    }
+    else
+    {
+        push( @{ $self->{socket_buffer} }, $packet );
+        $buffered = $TRUE;
+    }
+
+    return( $buffered );
+}
+
+# Flush queue of user-requested sent packets, when connected.
+sub _flush_queue
+{
+    my( $self ) = @_;
+
+    return undef unless( $self->{'socket'} );
+
+    my $count;
+    if( $count = @{ $self->{socket_buffer} } )
+    {
+        $self->{'socket'}->put( @{ $self->{socket_buffer} } );
+        $self->_update_stats_sent(
+                  length( join( '', @{ $self->{socket_buffer} } ) )
+        );
+        $self->{socket_buffer} = [];        # clear buffer
+        O_DEBUG( $count . " buffered packets sent." );
+    }
+
+    return( $count );
 }
 
 # Pause the autoreconnect state; save the current value

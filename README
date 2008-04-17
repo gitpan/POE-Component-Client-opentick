@@ -15,6 +15,13 @@ This module follows the standard Perl module installation steps of:
 	make test
 	make install
 
+NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE
+
+Due to the way the test for output is written, it may fail on perl <= 5.6.2.
+The modules themselves will still likely work if you force the installation.
+
+Consider upgrading.  5.6.x is over 6 years old.
+
 SUPPORT AND DOCUMENTATION
 
 After installing, you can find documentation for this module with the

@@ -31,7 +31,7 @@ use POE::Component::Client::opentick::Output;
 
 use vars qw( $VERSION $TRUE $FALSE $KEEP $DELETE );
 
-($VERSION) = q$Revision: 47 $ =~ /(\d+)/;
+($VERSION) = q$Revision: 48 $ =~ /(\d+)/;
 *TRUE      = \1;
 *FALSE     = \0;
 *KEEP      = \0;
@@ -265,19 +265,24 @@ sub _ot_msg_login_i
     my @fields = unpack_binary( $template, $body );
     my( $session_id, $redirected, $redir_host, $redir_port ) = @fields;
 
-    # Stash our OT session ID for later, and tell ourselves we've logged in
+    # Stash our OT session ID for later
     $self->_set_session_id( $session_id );
-    $kernel->yield( OTEvent( 'OT_ON_LOGIN' ) );
 
     # Check if we have been redirected, and send a synchronous event.
-    $poe_kernel->call( $poe_kernel->get_active_session(),
-                       '_server_redirect', $redir_host, $redir_port )
-        if( $redirected );
+    my $object;
+    if( $redirected )
+    {
+        $poe_kernel->call( $poe_kernel->get_active_session(),
+                       '_server_redirect', $redir_host, $redir_port );
+    }
+    else # tell ourselves we logged in
+    {
+        $kernel->yield( OTEvent( 'OT_ON_LOGIN' ) );
+        $object = $self->_create_record( $req_id, $cmd_id, undef, \@fields );
+    }
 
-    # Create the results object and return.
-    my $object = $self->_create_record( $req_id, $cmd_id, undef, \@fields );
-
-    return( '', [ $object ] );
+    # Return the resulting object, or nothing.
+    return( '', $object ? [ $object ] : [] );
 }
 
 # Handle a logout response.

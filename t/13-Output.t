@@ -4,6 +4,8 @@
 #
 #   infi/2008
 #
+# FIXME: The redirection doesn't seem to jive on perl 5.6.2
+#   http://www.nntp.perl.org/group/perl.cpan.testers/2008/04/msg1317361.html
 
 use strict;
 use warnings;

@@ -28,7 +28,7 @@ BEGIN {
                       OTCommandList  OTDatatype  OTCommandtoAPI  OT64bit
                       OTCanceller    OTTradeIndicator   OTQuoteIndicator
                       has_otlib );
-    ($VERSION)  = q$Revision: 46 $ =~ /(\d+)/;
+    ($VERSION)  = q$Revision: 48 $ =~ /(\d+)/;
 }
 
 ###
@@ -373,13 +373,13 @@ $OTTemplates = {
         $OTConstants->{OT_REQUEST_TICK_STREAM_EX}  => '',       # unneeded
         $OTConstants->{OT_REQUEST_HIST_DATA}       => 'V',      # + datatype
         $OTConstants->{OT_REQUEST_HIST_TICKS}      => 'V',      # + datatype
-        $OTConstants->{OT_REQUEST_LIST_EXCHANGES}  => 'v/a',
-        $OTConstants->{OT_REQUEST_LIST_SYMBOLS}    => 'a4 a15 C v/a',
+        $OTConstants->{OT_REQUEST_LIST_EXCHANGES}  => 'v/Z',
+        $OTConstants->{OT_REQUEST_LIST_SYMBOLS}    => 'Z4 Z15 C v/Z',
         # Requires 64-bit int support built into Perl, but we'll simulate it.
         $OTConstants->{OT_REQUEST_EQUITY_INIT}     =>
             $PERL_64BIT_INT
-                ? 'C a3 C a80 d a8 d a8 d a8 d a8 D D a9 a12 C C C'
-                : 'C a3 C a80 d a8 d a8 d a8 d a8 a8 a8 a9 a12 C C C',
+                ? 'C a3 C Z80 d a8 d a8 d a8 d a8 D D a9 a12 C C C'
+                : 'C a3 C Z80 d a8 d a8 d a8 d a8 a8 a8 a9 a12 C C C',
         $OTConstants->{OT_REQUEST_OPTION_CHAIN}    => '',
         $OTConstants->{OT_REQUEST_OPTION_CHAIN_EX} => '',
         $OTConstants->{OT_REQUEST_BOOK_STREAM}     => '',
@@ -394,7 +394,7 @@ $OTTemplates = {
         $OTConstants->{OT_REQUEST_HIST_BOOKS}      => '',
         $OTConstants->{OT_REQUEST_BOOK_STREAM_EX}  => '',
         $OTConstants->{OT_REQUEST_OPTION_CHAIN_U}  => '',
-        $OTConstants->{OT_REQUEST_OPTION_INIT}     => 'C a12 a12 d V a4 a2 a2 a a9 a3 a',
+        $OTConstants->{OT_REQUEST_OPTION_INIT}     => 'C Z12 Z12 d V a4 a2 a2 a a9 a3 a',
         $OTConstants->{OT_REQUEST_LIST_SYMBOLS_EX} => '',
         $OTConstants->{OT_REQUEST_TICK_SNAPSHOT}   => '',
         $OTConstants->{OT_REQUEST_OPTION_CHAIN_SNAPSHOT} => '',
@@ -416,14 +416,14 @@ $OTTemplates = {
                 : 'C V d d d d a8',
         $OTConstants->{OT_DATATYPE_OHL_TODAY}       => 'C d d d',
         # requestBookStream*, requestOptionChain*, requestHistBooks
-        $OTConstants->{OT_DATATYPE_CANCEL}          => 'C V a21 V',
-        $OTConstants->{OT_DATATYPE_CHANGE}          => 'C V a21 d V',
-        $OTConstants->{OT_DATATYPE_DELETE}          => 'C V a21 C C',
-        $OTConstants->{OT_DATATYPE_EXECUTE}         => 'C V a21 V V',
-        $OTConstants->{OT_DATATYPE_ORDER}           => 'C V a21 d V C C',
+        $OTConstants->{OT_DATATYPE_CANCEL}          => 'C V Z21 V',
+        $OTConstants->{OT_DATATYPE_CHANGE}          => 'C V Z21 d V',
+        $OTConstants->{OT_DATATYPE_DELETE}          => 'C V Z21 C C',
+        $OTConstants->{OT_DATATYPE_EXECUTE}         => 'C V Z21 V V',
+        $OTConstants->{OT_DATATYPE_ORDER}           => 'C V Z21 d V C C',
         $OTConstants->{OT_DATATYPE_PRICELEVEL}      => 'C V d V C a4',
         $OTConstants->{OT_DATATYPE_PURGE}           => 'C V a3',
-        $OTConstants->{OT_DATATYPE_REPLACE}         => 'C V a21 d V C',
+        $OTConstants->{OT_DATATYPE_REPLACE}         => 'C V Z21 d V C',
     },
 };
 

@@ -30,7 +30,7 @@ use POE::Component::Client::opentick::ProtocolMsg;
 
 use vars qw( $VERSION $TRUE $FALSE $KEEP $DELETE $poe_kernel );
 
-($VERSION) = q$Revision: 43 $ =~ /(\d+)/;
+($VERSION) = q$Revision: 48 $ =~ /(\d+)/;
 *TRUE      = \1;
 *FALSE     = \0;
 *KEEP      = \0;
@@ -314,7 +314,13 @@ sub _ot_proto_process_response
         {
             # Notify the requestor of data or errors
             $self->_send_notification( $object );
-            # Update the outstanding request list
+        }
+
+        # OPTIMIZATION: All messages in a single response will be from the
+        # same request, so SEPARATELY, for ONE OBJECT,
+        # Update the outstanding request list
+        if( @$objects and my $object = $objects->[0] )
+        {
             $self->_update_requests( $object );
         }
     }
@@ -346,8 +352,10 @@ sub _ot_proto_heartbeat_send
 {
     my( $self, $kernel ) = @_[OBJECT,KERNEL];
 
-    $kernel->yield( '_ot_proto_issue_command', OTConstant( 'OT_HEARTBEAT' ) );
-    $kernel->delay( '_ot_proto_heartbeat_send', $self->{heartbeat} );
+    $kernel->call( $self->{alias},
+                   '_ot_proto_issue_command',
+                   OTConstant( 'OT_HEARTBEAT' ) );
+    $kernel->delay( '_ot_proto_heartbeat_send', $self->get_heartbeat_delay );
 
     return;
 }
@@ -707,11 +715,14 @@ sub _prune_old_requests
     {
         my $cmd_id    = $self->_get_request_command( $req_id );
 
-        if( ( $self->_get_request_time( $req_id ) > $timeout ) and
+        if( ( time >
+              $self->_get_request_time( $req_id ) + $timeout ) and
             ( $cmd_id == OTConstant( 'OT_REQUEST_LIST_EXCHANGES' ) or
               $cmd_id == OTConstant( 'OT_REQUEST_LIST_SYMBOLS' ) or
               $cmd_id == OTConstant( 'OT_REQUEST_LIST_SYMBOLS_EX' ) ) )
         {
+            print Dumper $self->{requests}->{$req_id};
+            O_DEBUG( "pruning $req_id!" );
             $self->_prune_request( $req_id );
         }
     }

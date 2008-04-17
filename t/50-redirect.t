@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 25;
+use Test::More tests => 37;
 use Data::Dumper;
 use Socket;
 use POE qw( Component::Server::TCP Filter::Stream );
@@ -32,7 +32,7 @@ my $args = {
     redirhost   => 'localhost',
     redirport   => 31415,
     myalias     => 'testclient95',
-    b64         => 'abcdef0123456789abcdef123456789abcdef0123456789abcdef0123456789',
+    b64         => 'abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789',
 };
 
 ### Tests, in no particular order, and quite scattered about.
@@ -159,21 +159,55 @@ sub client_input_redir
 {
     my( $input, $heap ) = @_[ARG0,HEAP];
 
-    my @args = unpack( 'V CCxxVV A64', $input );
+    my @args = unpack( 'V CCxxVV a*', $input );
 
-    if( $args[3] == 1 ) {
-        # Oops, tried to login twice.  Immediate failure.
-        fail( 'Got input!  This isn\'t supposed to happen!' );
-        diag( "input:\n" . dump_hex( $input ) );
-    }
-    else
+    if( $args[3] == 1 )
     {
+        # Check OT_LOGIN packet correctness ( AGAIN )
+        my @args = unpack( 'V CCxxVV vCCA16a6A64A64', $input );
+
+        # OT_LOGIN packet correctness
+        is( $args[0], 0xa6,                 'MessageLength' );
+        is( $args[1],    1,                 'MessageType == OT_LOGIN' );
+        is( $args[2],    1,                 'CommandStatus' );
+        is( $args[3],    1,                 'CommandType' );
+        is( $args[4],    2,                 'RequestID' );
+        is( $args[5],    4,                 'ProtocolVersion' );
+        is( $args[6],   20,                 'OSID' );
+        is( $args[7],    1,                 'PlatformID' );
+        is( $args[8],   '',                 'PlatformIDPwd' );
+        is( length($args[9]),   6,          'MacAddress length' );
+        is( $args[10],   $args->{username}, 'Username' );
+        is( $args[11],   $args->{password}, 'Password' );
+
+        # Build packet, don't redirect this time.
+        my $packet = pack( 'CCxxVV a64Ca64v',
+                           # header
+                           2, 1, 1, 1,
+                           # body
+                           $args->{b64},
+                           0,
+                           '',
+                           0,
+        );
+        my $len = pack( 'V', length($packet) );
+        $packet = $len . $packet;
+#        diag( dump_hex( $packet ) );
+
+        # Send packet
+        $heap->{client}->put( $packet );
+    }
+    elsif( $args[3] == 2 )
+    {
+#        diag( dump_hex( $input ) );
+        my @args = unpack( 'V CCxxVV a64', $input );
+
         # Check OT_LOGOUT packet correctness
         is( $args[0], length( $input ) - 4, 'MessageLength' );
         is( $args[1], 1, 'MessageType' );
         is( $args[2], 1, 'CommandStatus' );
         is( $args[3], 2, 'MessageType == OT_LOGOUT' );
-        is( $args[4], 2, 'RequestID' );
+        ok( $args[4] >= 3, 'RequestID' );
         is( $args[5], $args->{b64}, 'SessionID' );
 
         # Generate response packet
@@ -183,6 +217,17 @@ sub client_input_redir
 
         # And send.
         $heap->{client}->put( $packet );
+    }
+    elsif( $args[3] == 9 )
+    {
+        # ignore heartbeat
+    }
+    else
+    {
+        # Oops, got some other junk.  Abort.
+        fail( 'Got junk!' );
+        diag( "input:\n" . dump_hex( $input ) );
+        die "ERROR!";
     }
 
     return;

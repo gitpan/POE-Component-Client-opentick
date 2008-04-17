@@ -28,7 +28,7 @@ use POE::Component::Client::opentick::Socket;
 
 use vars qw( $VERSION $TRUE $FALSE $KEEP $DELETE $poe_kernel );
 
-$VERSION = '0.12';
+$VERSION = '0.15';
 *TRUE    = \1;
 *FALSE   = \0;
 *KEEP    = \0;
@@ -349,8 +349,7 @@ sub _ot_on_login
 
     $self->{READY} = OTConstant( 'OT_STATUS_LOGGED_IN' );
     $self->{sock}->_set_state( OTConstant( 'OT_STATUS_LOGGED_IN' ) );
-    $kernel->delay( '_ot_proto_heartbeat_send',
-                    $self->{protocol}->get_heartbeat_delay() );
+    $kernel->yield( '_ot_proto_heartbeat_send' );
 
     return;
 }

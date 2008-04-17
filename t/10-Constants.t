@@ -49,7 +49,7 @@ is( OTTemplate( 'ERROR' ),         'v v a*',
                                     'OTTemplate: ERROR' );
 is( OTTemplate( "cmds/OT_LOGIN" ), 'v C C a16 a6 a64 a64',
                                     'OTTemplate: cmds/OT_LOGIN' );
-is( OTTemplate( "resp/OT_REQUEST_LIST_SYMBOLS" ), 'a4 a15 C v/a',
+is( OTTemplate( "resp/OT_REQUEST_LIST_SYMBOLS" ), 'Z4 Z15 C v/Z',
                                     'OTTemplate: resp/OT_REQUEST_LIST_SYMBOLS');
 is( OTTemplate( 'borkbork' ),        undef, 'OTTemplate: invalid string' );
 is( OTTemplate( 'brown/SMURF' ),     undef, 'OTTemplate: invalid path' );
@@ -234,7 +234,7 @@ if( $PERL_64BIT_INT )
     is( OT64bit( OTConstant( 'OT_DATATYPE_OHLC' ) ),            undef,
                              'OT64bit: OT_DATATYPE_OHLC' );
     is( OTTemplate( 'resp/OT_REQUEST_EQUITY_INIT' ),
-        'C a3 C a80 d a8 d a8 d a8 d a8 D D a9 a12 C C C',
+        'C a3 C Z80 d a8 d a8 d a8 d a8 D D a9 a12 C C C',
         'OTTemplate: 64-bit resp/OT_REQUEST_EQUITY_INIT' );
     is( OTTemplate( 'datatype/OT_DATATYPE_TRADE' ),
         'C V d V D V a a C',
@@ -250,7 +250,7 @@ if( $PERL_64BIT_INT )
     is( OT64bit( OTConstant( 'OT_DATATYPE_OHLC' ) ),            1,
                              'OT64bit: OT_DATATYPE_OHLC' );
     is( OTTemplate( 'resp/OT_REQUEST_EQUITY_INIT' ),
-        'C a3 C a80 d a8 d a8 d a8 d a8 a8 a8 a9 a12 C C C',
+        'C a3 C Z80 d a8 d a8 d a8 d a8 a8 a8 a9 a12 C C C',
         'OTTemplate: 32-bit resp/OT_REQUEST_EQUITY_INIT' );
     is( OTTemplate( 'datatype/OT_DATATYPE_TRADE' ),
         'C V d V a8 V a a C',

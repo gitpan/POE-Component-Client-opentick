@@ -1,4 +1,21 @@
+
+Legend:
+BUG:    An actual found or reported bug fix.
+FIX:    Correction toward correct behavior, but unreported.
+DOC:    Changes to documentation.
+NEW:    New, previously non-existent feature.
+
 Revision history for POE-Component-Client-opentick
+----------------------------------------------------
+0.15    Apr 16, 2008
+        BUG: Server redirection implementation was borked; repaired.
+                (Thanks, bt!)
+        TST: Updated tests to reflect new redirection implementation.
+        DOC: Updated doc/implementation-notes.txt with correct info.
+        FIX: Minor optimizations in protocol handling to reduce unnecessary
+                POE messages.
+        FIX: Upped priority of OT_HEARTBEAT due to premature disconnections
+                during testing.
 
 0.12    Apr 13, 2008
         BUG: Corrected misnamed variables that caused OTClient.pm and
@@ -18,7 +35,7 @@ Revision history for POE-Component-Client-opentick
         DOC: Documented arguments of all API events in opentick.pm
 
 0.05    Mar 12, 2008
-        ADD: Reimplemented OTClient::getEntityById for facade interface.
+        NEW: Reimplemented OTClient::getEntityById for facade interface.
         FIX: Corrected documentation; was referring to incorrect event IDs.
 
 0.04    Mar 10, 2008
