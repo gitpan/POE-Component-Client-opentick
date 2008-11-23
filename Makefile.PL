@@ -10,8 +10,9 @@ WriteMakefile(
     ABSTRACT_FROM       => 'lib/POE/Component/Client/opentick.pm',
     PL_FILES            => {},
     PREREQ_PM => {
-        'Test::More' => 0,
-        'POE'        => 0,
+        'Time::HiRes'       => 0,
+        'Test::More'        => 0,
+        'POE'               => 0,
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'POE-Component-Client-opentick-*' },

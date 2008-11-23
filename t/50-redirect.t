@@ -20,6 +20,7 @@ use Test::More tests => 37;
 use Data::Dumper;
 use Socket;
 use POE qw( Component::Server::TCP Filter::Stream );
+$|=1;
 
 ### "Constants"
 
@@ -111,28 +112,27 @@ sub client_input_main
 {
     my( $heap, $input ) = @_[HEAP,ARG0];
 
-#    print dump_hex( $input );
-
     my @args = unpack( 'V CCxxVV vCCA16a6A64A64', $input );
 
     # OT_LOGIN packet correctness
-    is( $args[0], 0xa6,                 'MessageLength' );
-    is( $args[1],    1,                 'MessageType == OT_LOGIN' );
-    is( $args[2],    1,                 'CommandStatus' );
-    is( $args[3],    1,                 'CommandType' );
-    is( $args[4],    1,                 'RequestID' );
-    is( $args[5],    4,                 'ProtocolVersion' );
-    is( $args[6],   20,                 'OSID' );
-    is( $args[7],    1,                 'PlatformID' );
-    is( $args[8],   '',                 'PlatformIDPwd' );
-    is( length($args[9]),   6,          'MacAddress length' );
-    is( $args[10],   $args->{username}, 'Username' );
-    is( $args[11],   $args->{password}, 'Password' );
+    is( $args[0], 0xa6,                 '1MessageLength' );
+    is( $args[1],    1,                 '1MessageType == OT_LOGIN' );
+    is( $args[2],    1,                 '1CommandStatus' );
+    is( $args[3],    1,                 '1CommandType' );
+    is( $args[4],    1,                 '1RequestID' );
+    is( $args[5],    4,                 '1ProtocolVersion' );
+    is( $args[6],   20,                 '1OSID' );
+    is( $args[7],    1,                 '1PlatformID' );
+    is( $args[8],   '',                 '1PlatformIDPwd' );
+    is( length($args[9]),   6,          '1MacAddress length' );
+    is( $args[10],   $args->{username}, '1Username' );
+    is( $args[11],   $args->{password}, '1Password' );
 
     # Build packet
     my $packet = pack( 'CCxxVV a64Ca64v',
                        # header
-                       2, 1, 1, 1,
+                       2, 1, 1,
+                       $args[4],    # previous request ID
                        # body
                        $args->{b64},
                        1,
@@ -141,8 +141,6 @@ sub client_input_main
     );
     my $len = pack( 'V', length($packet) );
     $packet = $len . $packet;
-
-#    print dump_hex( $packet );
 
     # Send packet
     $heap->{client}->put( $packet );
@@ -159,76 +157,83 @@ sub client_input_redir
 {
     my( $input, $heap ) = @_[ARG0,HEAP];
 
-    my @args = unpack( 'V CCxxVV a*', $input );
+    my( $leftover, @header ) = ( $input );
 
-    if( $args[3] == 1 )
-    {
-        # Check OT_LOGIN packet correctness ( AGAIN )
-        my @args = unpack( 'V CCxxVV vCCA16a6A64A64', $input );
+    do {
+        @header = unpack( 'V CCxxVV a*', $leftover );
+        $leftover = pop( @header );
 
-        # OT_LOGIN packet correctness
-        is( $args[0], 0xa6,                 'MessageLength' );
-        is( $args[1],    1,                 'MessageType == OT_LOGIN' );
-        is( $args[2],    1,                 'CommandStatus' );
-        is( $args[3],    1,                 'CommandType' );
-        is( $args[4],    2,                 'RequestID' );
-        is( $args[5],    4,                 'ProtocolVersion' );
-        is( $args[6],   20,                 'OSID' );
-        is( $args[7],    1,                 'PlatformID' );
-        is( $args[8],   '',                 'PlatformIDPwd' );
-        is( length($args[9]),   6,          'MacAddress length' );
-        is( $args[10],   $args->{username}, 'Username' );
-        is( $args[11],   $args->{password}, 'Password' );
+        if( $header[3] == 1 )
+        {
+            # Check OT_LOGIN packet correctness ( AGAIN )
+            my @args = unpack( 'vCCA16a6A64A64 a*', $leftover );
+            $leftover = pop( @args );
 
-        # Build packet, don't redirect this time.
-        my $packet = pack( 'CCxxVV a64Ca64v',
-                           # header
-                           2, 1, 1, 1,
-                           # body
-                           $args->{b64},
-                           0,
-                           '',
-                           0,
-        );
-        my $len = pack( 'V', length($packet) );
-        $packet = $len . $packet;
-#        diag( dump_hex( $packet ) );
+            # OT_LOGIN packet correctness
+            is( $header[0],                    0xa6, '2MessageLength' );
+            is( $header[1],                       1, '2MessageType == OT_LOGIN' );
+            is( $header[2],                       1, '2CommandStatus' );
+            is( $header[3],                       1, '2CommandType' );
+            is( $header[4],                       2, '2RequestID' );
+            is( $args[0],                         4, '2ProtocolVersion' );
+            is( $args[1],                        20, '2OSID' );
+            is( $args[2],                         1, '2PlatformID' );
+            is( $args[3],                        '', '2PlatformIDPwd' );
+            is( length($args[4]),                 6, '2MacAddress length' );
+            is( $args[5],         $args->{username}, '2Username' );
+            is( $args[6],         $args->{password}, '2Password' );
 
-        # Send packet
-        $heap->{client}->put( $packet );
-    }
-    elsif( $args[3] == 2 )
-    {
-#        diag( dump_hex( $input ) );
-        my @args = unpack( 'V CCxxVV a64', $input );
+            # Build packet, don't redirect this time.
+            my $packet = pack( 'CCxxVV a64Ca64v',
+                               # header
+                               2, 1, 1,
+                               $header[4],        # previous request ID
+                               # body
+                               $args->{b64},
+                               0,
+                               '',
+                               0,
+            );
+            my $len = pack( 'V', length($packet) );
+            $packet = $len . $packet;
 
-        # Check OT_LOGOUT packet correctness
-        is( $args[0], length( $input ) - 4, 'MessageLength' );
-        is( $args[1], 1, 'MessageType' );
-        is( $args[2], 1, 'CommandStatus' );
-        is( $args[3], 2, 'MessageType == OT_LOGOUT' );
-        ok( $args[4] >= 3, 'RequestID' );
-        is( $args[5], $args->{b64}, 'SessionID' );
+            # Send packet
+            $heap->{client}->put( $packet );
+        }
+        elsif( $header[3] == 2 )
+        {
+            my $msglen = length( $leftover ) - 4 + 16;  # Magic.
+            my @args = unpack( 'a64 a*', $leftover );
+            $leftover = pop( @args );
 
-        # Generate response packet
-        my $packet = pack( 'CCxxVV', 2, 1, 2, 2 );
-        my $len    = pack( 'V', length( $packet ) );
-        $packet    = $len . $packet;
+            # Check OT_LOGOUT packet correctness
+            is( $header[0],              $msglen, '3MessageLength' );
+            is( $header[1],                    1, '3MessageType' );
+            is( $header[2],                    1, '3CommandStatus' );
+            is( $header[3],                    2, '3MessageType == OT_LOGOUT' );
+            ok( $header[4] >= 3,                  '3RequestID' );
+            is( $args[0],           $args->{b64}, '3SessionID' );
 
-        # And send.
-        $heap->{client}->put( $packet );
-    }
-    elsif( $args[3] == 9 )
-    {
-        # ignore heartbeat
-    }
-    else
-    {
-        # Oops, got some other junk.  Abort.
-        fail( 'Got junk!' );
-        diag( "input:\n" . dump_hex( $input ) );
-        die "ERROR!";
-    }
+            # Generate response packet
+            my $packet = pack( 'CCxxVV', 2, 1, 2, $header[4] );
+            my $len    = pack( 'V', length( $packet ) );
+            $packet    = $len . $packet;
+
+            # And send.
+            $heap->{client}->put( $packet );
+        }
+        elsif( $header[3] == 9 )
+        {
+            # ignore heartbeat
+        }
+        else
+        {
+            # Oops, got some other junk.  Abort.
+            fail( 'Got junk!' );
+            diag( "input:\n" . dump_hex( $input ) );
+            die "ERROR!";
+        }
+    } while( $leftover );
 
     return;
 }
@@ -251,4 +256,5 @@ $poe_kernel->run();
 #diag( "POE kernel ended." );
 
 __END__
+
 

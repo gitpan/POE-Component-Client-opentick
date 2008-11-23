@@ -25,7 +25,7 @@ use vars qw( $VERSION $TRUE $FALSE $KEEP $DELETE );
 ### Variables
 ###
 
-($VERSION) = q$Revision: 46 $ =~ /(\d+)/;
+($VERSION) = q$Revision: 50 $ =~ /(\d+)/;
 *TRUE      = \1;
 *FALSE     = \0;
 *KEEP      = \0;
@@ -104,7 +104,8 @@ my $field_datatypes = {
                 Price       Size        Side ),
         ],
         OTConstant( 'OT_DATATYPE_OHLC' )        => [
-            qw( Open        High        Low     Close   Volume ),
+            qw( Datatype    Timestamp
+                Open        High        Low     Close   Volume ),
         ],
         OTConstant( 'OT_DATATYPE_OHL_TODAY' )   => [
             qw( Open        High        Low ),
@@ -479,7 +480,7 @@ object arrived in response to.
 Get the numeric $datatype corresponding with the resulting records.
 Probably useless for end users.
 
-=item b<$boolean  = is_eod( )>
+=item B<$boolean  = is_eod( )>
 
 Does this ::Record object represent an EndOfData condition?  If so, the DATA
 field is useless.  Just wraps $command_id and $request_id.

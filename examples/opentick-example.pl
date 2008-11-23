@@ -104,8 +104,8 @@ sub on_login
 #    my $req_id = $opentick->call( requestTickStream => Q => 'GOOG' );
 #    my $req_id = $opentick->call( requestTickStreamEx => Q => 'GOOG' =>
 #                                  4 );
-#    my $req_id = $opentick->call( requestTickSnapshot => '@' => 'MSFT' =>
-#                                  4 );
+    my $req_id = $opentick->call( requestTickSnapshot => '@' => 'MSFT' =>
+                                  4 );
 #    my $req_id = $opentick->call( requestOptionChain => AO => MSFT =>
 #                                  3, 2008 );
 #    my $req_id = $opentick->call( requestOptionChainEx => AO => MSFT =>
@@ -114,7 +114,7 @@ sub on_login
 #                                  4, 2008, 15, 24, 25, 1 );
 #    my $req_id = $opentick->call( requestOptionChainSnapshot => AO => MSFT =>
 #                                  4, 2008, 15, 20, 25, 1 );
-    my $req_id = $opentick->call( requestEqInit => Q => 'MSFT' );
+#    my $req_id = $opentick->call( requestEqInit => Q => 'MSFT' );
 #    my $req_id = $opentick->call( requestBookStream => bt => 'MSFT' );
 #    my $req_id = $opentick->call( requestBookStreamEx => is => 'MSFT' =>
 #                                  4080 );
@@ -219,17 +219,17 @@ sub get_stats
     # We don't need to use any arguments for this.
 
     # Get statistics on the $opentick object.
-    my @stats = $opentick->statistics();
+#    my @stats = $opentick->statistics();
+    # This also works fine for statistics(), but only with ->call()
+    #my @stats = $opentick->call( 'statistics' );
 
-    # This works fine for statistics(), too, but only with call()
-#    my @stats = $opentick->call( 'statistics' );
-
-    print "OT component statistics:\n";
-    printf "packets sent  = %d\npackets recv  = %d\nbytes sent    = %d\n" .
-           "bytes recv    = %d\nmessages sent = %d\nmessages recv = %d\n" .
-           "records recv  = %d\nerrors recv   = %d\n" .
-           "uptime        = %d secs\nconnect time  = %d secs\n",
-           @stats;
+    # Print the statistics
+#    print "OT component statistics:\n";
+#    printf "packets sent  = %d\npackets recv  = %d\nbytes sent    = %d\n" .
+#           "bytes recv    = %d\nmessages sent = %d\nmessages recv = %d\n" .
+#           "records recv  = %d\nerrors recv   = %d\n" .
+#           "uptime        = %d secs\nconnect time  = %d secs\n",
+#           @stats;
 
     # Try cancelling the request
 #    my $req_id = $opentick->call( cancelTickStream => 2 );

@@ -20,6 +20,16 @@ BEGIN {
 
 my ($stdout,$stderr,$obj);
 
+###################################################
+# open()ing to a scalar ref appeared in 5.8.x
+# it doesn't affect the software, only these
+# tests, so forget it.
+###################################################
+SKIP: {
+    eval { require 5.008_000 };
+
+    skip "Scalar references only available in >= 5.8.0", 8 if $@;
+
 # Test #2: O_DEBUG
 ok(
     do {
@@ -113,7 +123,7 @@ ok(
     'get_quiet() workiness'
 );
 
-# Test #8: set_quiet correctness
+# Test #9: set_quiet correctness
 ok(
     do {
         eval{
@@ -124,17 +134,21 @@ ok(
             $stderr eq ''
         };
     },
-    'get_quiet() workiness'
+    'set_quiet() workiness'
 );
 
-# Test #9: Object creation type
+########################
+} # END OF SKIP: BLOCK #
+########################
+
+# Test #10: Object creation type
 ok(
     ref( $obj = O_ERROR( 'Checking the cell structah' ) ) eq
         'POE::Component::Client::opentick::Output',
     'Correct Output object creation type',
 );
 
-# Test #10: Object properties
+# Test #11: Object properties
 ok(
     $obj->get_level() eq 'ERROR'      &&
     $obj->get_timestamp() > 0         &&
@@ -144,7 +158,7 @@ ok(
 
 #diag( $obj->stringify() );
 
-# Test #11: Object stringification
+# Test #12: Object stringification
 ok(
     $obj->stringify() =~ m/^OT:ERROR:[\d\.]+:Checking the cell structah$/,
     'Correct Output object stringification',

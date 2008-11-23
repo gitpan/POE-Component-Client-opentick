@@ -28,7 +28,7 @@ BEGIN {
                       OTCommandList  OTDatatype  OTCommandtoAPI  OT64bit
                       OTCanceller    OTTradeIndicator   OTQuoteIndicator
                       has_otlib );
-    ($VERSION)  = q$Revision: 48 $ =~ /(\d+)/;
+    ($VERSION)  = q$Revision: 50 $ =~ /(\d+)/;
 }
 
 ###
@@ -367,7 +367,7 @@ $OTTemplates = {
     },
     # templates for command response bodies
     resp        => {
-        $OTConstants->{OT_LOGIN}                   => 'a64 C a64 v',
+        $OTConstants->{OT_LOGIN}                   => 'a64 C Z64 v',
         $OTConstants->{OT_LOGOUT}                  => '',       # none
         $OTConstants->{OT_REQUEST_TICK_STREAM}     => '',       # unneeded
         $OTConstants->{OT_REQUEST_TICK_STREAM_EX}  => '',       # unneeded

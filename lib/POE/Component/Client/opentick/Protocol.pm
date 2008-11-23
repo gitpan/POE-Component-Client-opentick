@@ -30,7 +30,7 @@ use POE::Component::Client::opentick::ProtocolMsg;
 
 use vars qw( $VERSION $TRUE $FALSE $KEEP $DELETE $poe_kernel );
 
-($VERSION) = q$Revision: 48 $ =~ /(\d+)/;
+($VERSION) = q$Revision: 50 $ =~ /(\d+)/;
 *TRUE      = \1;
 *FALSE     = \0;
 *KEEP      = \0;
@@ -585,8 +585,6 @@ sub _cancel_commands
 
     O_DEBUG( "_cancel_commands( $req_id, $cmd_id ), cid=$cancel_id = $cancelled" );
 
-    print Dumper $self->{requests};
-
     return( $cancelled );
 }
 
@@ -721,7 +719,6 @@ sub _prune_old_requests
               $cmd_id == OTConstant( 'OT_REQUEST_LIST_SYMBOLS' ) or
               $cmd_id == OTConstant( 'OT_REQUEST_LIST_SYMBOLS_EX' ) ) )
         {
-            print Dumper $self->{requests}->{$req_id};
             O_DEBUG( "pruning $req_id!" );
             $self->_prune_request( $req_id );
         }

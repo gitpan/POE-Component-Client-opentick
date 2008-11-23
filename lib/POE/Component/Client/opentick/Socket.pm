@@ -28,7 +28,7 @@ use POE::Component::Client::opentick::Error;
 
 use vars qw( $VERSION $TRUE $FALSE $KEEP $DELETE $poe_kernel );
 
-($VERSION) = q$Revision: 48 $ =~ /(\d+)/;
+($VERSION) = q$Revision: 50 $ =~ /(\d+)/;
 *TRUE      = \1;
 *FALSE     = \0;
 *KEEP      = \0;
@@ -318,7 +318,7 @@ sub _ot_sock_connfail
     my( $self, $kernel, $op, $err_code, $err_str, $wheel )
                                         = @_[OBJECT, KERNEL, ARG0..ARG3];
 
-    O_DEBUG( "Connection failed.  $op() returned $err_str" );
+    O_DEBUG( "Connection failed.  $op() returned $err_code: $err_str" );
     delete( $self->{'socket'} );
 
     retry_connect( @_ );
@@ -371,7 +371,7 @@ sub _ot_sock_error
     my( $self, $kernel, $op, $err_code, $err_str, $wheel )
                                         = @_[OBJECT,KERNEL,ARG0..ARG3];
 
-    O_DEBUG( "Socket disconnected: $op() returned $err_code" );
+    O_DEBUG( "Socket disconnected: $op() returned $err_code: $err_str" );
 
     # Socket disconnected
     if( $op eq 'read' && $err_code == 0 )

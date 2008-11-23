@@ -5,6 +5,7 @@ README
 lib/POE/Component/Client/opentick.pm
 lib/POE/Component/Client/opentick/Constants.pm
 lib/POE/Component/Client/opentick/Error.pm
+lib/POE/Component/Client/opentick/FAQ.pm
 lib/POE/Component/Client/opentick/Output.pm
 lib/POE/Component/Client/opentick/Protocol.pm
 lib/POE/Component/Client/opentick/ProtocolMsg.pm

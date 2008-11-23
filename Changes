@@ -1,12 +1,24 @@
-
+Revision history for POE-Component-Client-opentick
+------------------------------------------------------------
 Legend:
 BUG:    An actual found or reported bug fix.
 FIX:    Correction toward correct behavior, but unreported.
 DOC:    Changes to documentation.
 NEW:    New, previously non-existent feature.
+------------------------------------------------------------
 
-Revision history for POE-Component-Client-opentick
-----------------------------------------------------
+0.20    Nov 23, 2008
+        BUG: I think I fixed the build errors on Solaris, Win32 and Darwin
+                in one fell swoop.  Silly caching network stacks.
+        {
+        BUG: RT #39733: Wrong $field_datatypes for OT_DATATYPE_OHLC, Record.pm
+        BUG: RT #39734: Minor typo in documentation for Record.pm
+        BUG: RT #40364: Broken get_status() when ot_status_changed, opentick.pm
+        BUG: RT #40573: Annoying Dumper() in Protocol.pm
+        } -- thanks, A.L.!
+        FIX: t/13-Output.t would fail on 5.6.2 due to scalar refs; skipped.
+        DOC: Added Frequently Asked Questions list based on email questions.
+
 0.15    Apr 16, 2008
         BUG: Server redirection implementation was borked; repaired.
                 (Thanks, bt!)
@@ -53,3 +65,4 @@ Revision history for POE-Component-Client-opentick
 0.01    Mar 09, 2008
         First version, released on an unsuspecting world.
 
+# END OF Changes

@@ -28,7 +28,7 @@ use POE::Component::Client::opentick::Socket;
 
 use vars qw( $VERSION $TRUE $FALSE $KEEP $DELETE $poe_kernel );
 
-$VERSION = '0.15';
+$VERSION = '0.20';
 *TRUE    = \1;
 *FALSE   = \0;
 *KEEP    = \0;
@@ -370,7 +370,7 @@ sub _ot_on_logout
 
 sub _status_changed
 {
-    my( $self, $status ) = @_[OBJECT, ARG2];
+    my( $self, $status ) = @_[OBJECT, ARG0];
 
     return( $self->{READY} = $status );
 }
@@ -702,12 +702,6 @@ POE::Component::Client::opentick - A POE component for working with opentick.com
 
 =head1 DESCRIPTION
 
-B<NOTE>: This is primarily the documentation for the lower-level POE
-component itself.  You may be looking for 
-L<POE::Component::Client::opentick::OTClient>, which is part of this
-distribution, and provides an opentick.com B<otFeed-compatible> front-end
-interface for this component.
-
 This POE component allows you to easily interface with opentick.com's
 market data feed service using the power of POE to handle the asynchronous,
 simultaneous requests allowed with their protocol.  This service provides
@@ -717,6 +711,18 @@ subscriptions.
 It is primarily designed as an interface library, for example, to log to a
 database, rather than a standalone client application to query market data,
 although it will work fine in both regards.
+
+B<NOTE>: This is primarily the documentation for the lower-level POE
+component itself.  You may be looking for 
+L<POE::Component::Client::opentick::OTClient>, which is part of this
+distribution, and provides an opentick.com B<otFeed-compatible> front-end
+interface for this component.
+
+B<PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE>
+
+Please read the L<FAQ|POE::Component::Client::opentick::FAQ>.  It should
+answer 99% of your questions.  Then come back here for comprehensive
+documentation on how to use the interface.
 
 =head1 CONSTRUCTOR
 
@@ -1381,6 +1387,9 @@ Thank you, Rocco Caputo (dngor) for inventing and unleashing POE upon the
 world!
 
 =head1 AUTHOR
+
+Please kindly read the L<FAQ|POE::Component::Client::opentick::FAQ> before
+emailing me with questions.  Your answer is likely in there.
 
 Jason McManus (infi) -- infidel@cpan.org
 
