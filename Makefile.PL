@@ -5,9 +5,11 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     NAME                => 'POE::Component::Client::opentick',
     AUTHOR              => 'Jason McManus (INFIDEL) <infidel@cpan.org>',
-    LICENSE             => 'perl',
     VERSION_FROM        => 'lib/POE/Component/Client/opentick.pm',
     ABSTRACT_FROM       => 'lib/POE/Component/Client/opentick.pm',
+    ($ExtUtils::MakeMaker::VERSION >= 6.3002
+      ? ('LICENSE'=> 'perl')
+      : ()),
     PL_FILES            => {},
     PREREQ_PM => {
         'Time::HiRes'       => 0,

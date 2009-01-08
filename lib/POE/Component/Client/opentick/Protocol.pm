@@ -6,6 +6,8 @@ package POE::Component::Client::opentick::Protocol;
 #
 #   infi/2008
 #
+#   $Id: Protocol.pm 56 2009-01-08 16:51:14Z infidel $
+#
 #   See docs/implementation-notes.txt for a detailed explanation of how
 #     this module works.
 #
@@ -13,6 +15,7 @@ package POE::Component::Client::opentick::Protocol;
 #
 
 use strict;
+use warnings;
 use Carp qw( croak );
 use Data::Dumper;
 use POE;
@@ -30,7 +33,7 @@ use POE::Component::Client::opentick::ProtocolMsg;
 
 use vars qw( $VERSION $TRUE $FALSE $KEEP $DELETE $poe_kernel );
 
-($VERSION) = q$Revision: 50 $ =~ /(\d+)/;
+($VERSION) = q$Revision: 56 $ =~ /(\d+)/;
 *TRUE      = \1;
 *FALSE     = \0;
 *KEEP      = \0;
@@ -432,7 +435,7 @@ sub _send_notification
     
     # SPECIAL CASE: We already sent the notification.  Skip this.
     # Have to send it high-priority.
-    undef( $sender_id ) if $event == OTEvent( 'OT_ON_LOGIN' );
+    undef( $sender_id ) if( $event eq OTEvent( 'OT_ON_LOGIN' ) );
 
     # G'wan and send it already already, already!
     $poe_kernel->yield( _notify_of_event =>
@@ -581,7 +584,7 @@ sub _cancel_commands
 
     my $cancel_id = $self->_get_request_cancel_id( $req_id );
     my $cancelled = $self->_prune_request( $cancel_id );
-    my $cancelled = $self->_prune_request( $req_id );
+    $cancelled = $self->_prune_request( $req_id );
 
     O_DEBUG( "_cancel_commands( $req_id, $cmd_id ), cid=$cancel_id = $cancelled" );
 
@@ -908,7 +911,7 @@ Process a packet received from opentick.
 
 =head1 AUTHOR
 
-Jason McManus (infi)
+Jason McManus (INFIDEL) - C<< infidel AT cpan.org >>
 
 =head1 LICENSE
 

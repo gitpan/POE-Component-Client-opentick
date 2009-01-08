@@ -6,10 +6,13 @@ package POE::Component::Client::opentick::Output;
 #
 #   infi/2008
 #
+#   $Id: Output.pm 56 2009-01-08 16:51:14Z infidel $
+#
 #   Full POD documentation after __END__
 #
 
 use strict;
+use warnings;
 use Time::HiRes qw( time );
 
 use overload '""' => \&stringify;
@@ -20,7 +23,7 @@ BEGIN {
     require Exporter;
     our @ISA    = qw( Exporter );
     our @EXPORT = qw( O_DEBUG O_INFO O_NOTICE O_WARN O_ERROR );
-    ($VERSION)  = q$Revision: 43 $ =~ /(\d+)/;
+    ($VERSION)  = q$Revision: 56 $ =~ /(\d+)/;
 }
 
 ###
@@ -339,7 +342,7 @@ perldoc -q "include path"
 
 =head1 AUTHOR
 
-Jason McManus (infi)
+Jason McManus (INFIDEL) - C<< infidel AT cpan.org >>
 
 =head1 LICENSE
 

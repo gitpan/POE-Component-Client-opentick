@@ -6,6 +6,8 @@ package POE::Component::Client::opentick::Constants;
 #
 #   infi/2008
 #
+#   $Id: Constants.pm 56 2009-01-08 16:51:14Z infidel $
+#
 #   Full POD documentation after __END__
 #
 #   NOTE: This is deep hackery, and thus ugly.  But, I'm trying to do
@@ -13,6 +15,7 @@ package POE::Component::Client::opentick::Constants;
 #
 
 use strict;
+use warnings;
 use Carp qw( carp );
 $Carp::CarpLevel = 1;
 use Data::Dumper;
@@ -28,7 +31,7 @@ BEGIN {
                       OTCommandList  OTDatatype  OTCommandtoAPI  OT64bit
                       OTCanceller    OTTradeIndicator   OTQuoteIndicator
                       has_otlib );
-    ($VERSION)  = q$Revision: 50 $ =~ /(\d+)/;
+    ($VERSION)  = q$Revision: 56 $ =~ /(\d+)/;
 }
 
 ###
@@ -774,7 +777,8 @@ sub OTeod
 {
     my( $data_type ) = @_;
 
-    return( ( $data_type =~ /^\d+$/ &&
+    return( ( defined( $data_type )     &&
+              $data_type =~ /^\d+$/     &&
               $data_type == $OTConstants->{OT_DATATYPE_EOD} )
             ? $TRUE
             : $FALSE );
@@ -851,48 +855,48 @@ Exports the following methods into the using package's namespace:
 
 =over 
 
-=item B<$value     = OTConstant( $const_name )>
+=item B<$value       = OTConstant( $const_name )>
 
 Return the value of the named constant.
 
-=item B<$cmd_name  = OTCommand( $cmd_number )>
+=item B<$cmd_name    = OTCommand( $cmd_number )>
 
 Return the command name from the constant command number.
 
-=item B<$cmd_name  = OTCommandList( )>
+=item B<$cmd_name    = OTCommandList( )>
 
-Return a list of all symbolic <CommandType> names.
+Return a list of all symbolic E<lt>CommandTypeE<gt> names.
 
-=item B<$value     = OTDefault( $value_name )>
+=item B<$value       = OTDefault( $value_name )>
 
 Return one of the default values by name.
 
-=item B<$pack_tmpl = OTTemplate( $tmpl_name )>
+=item B<$pack_tmpl   = OTTemplate( $tmpl_name )>
 
 Return the named pack() template.
 
-=item B<$hashref   = OTCancel( $cmd_number )>
+=item B<$hashref     = OTCancel( $cmd_number )>
 
 Return a hashref of the command IDs that the supplied $cmd_number can cancel.
 
 Mapped like such:
 
-{ $cmd_number => $TRUE, $cmd_number2 => $TRUE, ... }
+{ $cmd_number =E<gt> $TRUE, $cmd_number2 =E<gt> $TRUE, ... }
 
 It's a hashref for O(1) lookups instead of O(n) list grepping.
 
-=item B<$cmd_id = OTCanceller( $cmd_id )>
+=item B<$cmd_id      = OTCanceller( $cmd_id )>
 
 Returns the canceller command ID of the appropriate cancel request for the
 supplied command ID.
 
-=item B<$datatype  = OTDatatype( $const_num )>
+=item B<$datatype    = OTDatatype( $const_num )>
 
-Return a $string representing the datatype for the supplied constant.
+Return a I<$string> representing the datatype for the supplied constant.
 
-=item B<$value     = OTResponses( $cmd_number )>
+=item B<$count       = OTResponses( $cmd_number )>
 
-Return the number of expected response packets to the specified command.
+Return the I<$count> of expected response packets to the specified command.
 
 Possible values and their meanings are:
 
@@ -902,48 +906,44 @@ Possible values and their meanings are:
  2       A finite number of response packets are generated.
  3       The stream is continuous until told to shut up.
 
-=item B<$boolean   = OTCmdStatus( $value )>
+=item B<$boolean     = OTCmdStatus( $value )>
 
-Return TRUE if the value is a valid CommandStatus.
+Return I<TRUE> if the value is a valid CommandStatus.
 
-=item B<$boolean   = OTMsgType( $value )>
+=item B<$boolean     = OTMsgType( $value )>
 
-Return TRUE if the value is a valid MessageType.
+Return I<TRUE> if the value is a valid MessageType.
 
-=item B<$eventname = OTEvent( $name )>
+=item B<$eventname   = OTEvent( $name )>
 
 Return actual POE $eventname for symbolic event name constant.
 
-=item B<$constname = OTEventByEvent( $eventname )>
+=item B<$constname   = OTEventByEvent( $eventname )>
 
 The reverse of the above.
 
-=item B<$constname = OTEventByCommand( $cmd_number )>
+=item B<$constname   = OTEventByCommand( $cmd_number )>
 
 Returns the POE event to issue for a particular $cmd_number response.
 
 e.g. OTEventByCommand( OTConstants('OT_LOGIN') ) returns 'ot_on_login'
 
-=item B<@eventnames = OTEventList( )>
+=item B<@eventnames  = OTEventList( )>
 
 Return a list of all actual OTEvent names ( values( %$OTEvents ) ).
 
-=item B<$boolean   = OTMsgType( $value )>
-
-Return TRUE if the value is a valid MessageType.
-
-=item B<$cmd_id = OTDeprecated( $cmd_id )>
+=item B<$cmd_id      = OTDeprecated( $cmd_id )>
 
 Return the replacement $cmd_id, if the supplied $cmd_id refers to an
 Opentick-deprecated command.
 
 Only requestTickStream and requestOptionChain are deprecated right now.
 
-=item B<$boolean   = OTeod( $value )>
+=item B<$boolean     = OTeod( $value )>
 
-Return TRUE if the value specifies End-Of-Data for <DataType>.
+Return TRUE if the value specifies End-Of-Data for E<lt>DataTypeE<gt>.
 
-=item B<$cmd_num   = OTAPItoCommand( $api_name )>
+=item B<$cmd_num     = OTAPItoCommand( $api_name )>
 
 Return the $command_number for the specified PUBLIC $api_name.
 
@@ -957,22 +957,22 @@ or undef if not found.
 Return the description of the supplied Indicator code from a TRADE quote,
 or undef if not found.
 
-=item B<$api_name  = OTCommandtoAPI( $cmd_id )>
+=item B<$api_name    = OTCommandtoAPI( $cmd_id )>
 
 Does the reverse of the above.
 
-=item B<@fieldnums = OT64bit( $cmd_id )>
+=item B<@fieldnums   = OT64bit( $cmd_id )>
 
 Return a list of field numbers that are actually supposed to be 64-bit
-integers for this $cmd_id.  This is to simulate 64-bit ints on a 32-bit
+integers for this I<$cmd_id>.  This is to simulate 64-bit ints on a 32-bit
 perl.  Returns the empty list if we're compiled with 64-bit ints, or the
-$cmd_id doesn't require any 64-bit simulation.
+I<$cmd_id> doesn't require any 64-bit simulation.
 
 Basically, it's used internally and useless for anything else.
 
-=item B<$boolean   = has_otlib( )>
+=item B<$boolean     = has_otlib( )>
 
-Return true if official opentick libraries were found in @INC.
+Return I<TRUE> if official opentick libraries were found in @INC.
 
 =back
 
@@ -998,7 +998,9 @@ how to modify your @INC path.)
 
 =head1 SEE ALSO
 
-POE, POE::Component::Client::opentick
+L<POE>
+
+L<POE::Component::Client::opentick>
 
 L<http://poe.perl.org>
 
@@ -1010,7 +1012,7 @@ perldoc -q "include path"
 
 =head1 AUTHOR
 
-Jason McManus (infi)
+Jason McManus (INFIDEL) - C<< infidel AT cpan.org >>
 
 =head1 LICENSE
 

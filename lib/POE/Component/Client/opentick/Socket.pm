@@ -6,10 +6,13 @@ package POE::Component::Client::opentick::Socket;
 #
 #   infi/2008
 #
+#   $Id: Socket.pm 56 2009-01-08 16:51:14Z infidel $
+#
 #   Full POD documentation after __END__
 #
 
 use strict;
+use warnings;
 use Carp qw( croak );
 use Data::Dumper;
 use Socket;
@@ -28,7 +31,7 @@ use POE::Component::Client::opentick::Error;
 
 use vars qw( $VERSION $TRUE $FALSE $KEEP $DELETE $poe_kernel );
 
-($VERSION) = q$Revision: 50 $ =~ /(\d+)/;
+($VERSION) = q$Revision: 56 $ =~ /(\d+)/;
 *TRUE      = \1;
 *FALSE     = \0;
 *KEEP      = \0;
@@ -739,7 +742,7 @@ sub _set_connect_time
 
 sub _reset_object
 {
-    my( $self ) = @_[OBJECT];
+    my( $self ) = $_[OBJECT];
     return if( $self->_get_state() == OTConstant( 'OT_STATUS_INACTIVE' ) );
     
 #    $self->_set_state( OTConstant( 'OT_STATUS_INACTIVE' ) );
@@ -813,7 +816,7 @@ Statistical information.  Just read the main docs, already.
 
 =head1 AUTHOR
 
-Jason McManus (infi) -- infidel@cpan.org
+Jason McManus (INFIDEL) - C<< infidel AT cpan.org >>
 
 =head1 LICENSE
 

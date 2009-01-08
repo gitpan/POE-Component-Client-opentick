@@ -7,12 +7,15 @@ package POE::Component::Client::opentick::Record;
 #
 #   infi/2008
 #
+#   $Id: Record.pm 56 2009-01-08 16:51:14Z infidel $
+#
 #   See comments at beginning of Protocol.pm for implementation
 #
 #   Full user POD documentation after __END__
 #
 
 use strict;
+use warnings;
 use Data::Dumper;
 
 # Ours
@@ -25,7 +28,7 @@ use vars qw( $VERSION $TRUE $FALSE $KEEP $DELETE );
 ### Variables
 ###
 
-($VERSION) = q$Revision: 50 $ =~ /(\d+)/;
+($VERSION) = q$Revision: 56 $ =~ /(\d+)/;
 *TRUE      = \1;
 *FALSE     = \0;
 *KEEP      = \0;
@@ -512,7 +515,7 @@ L<http://www.opentick.com/> -- opentick website
 
 =head1 AUTHOR
 
-Jason McManus (infi)
+Jason McManus (INFIDEL) - C<< infidel AT cpan.org >>
 
 =head1 LICENSE
 

@@ -4,10 +4,13 @@ package POE::Component::Client::opentick;
 #
 #   infi/2008
 #
+#   $Id: opentick.pm 56 2009-01-08 16:51:14Z infidel $
+#
 #   Full POD documentation after __END__
 #
 
 use strict;
+use warnings;
 use Socket;
 use Carp qw( croak );
 use Data::Dumper;
@@ -28,7 +31,7 @@ use POE::Component::Client::opentick::Socket;
 
 use vars qw( $VERSION $TRUE $FALSE $KEEP $DELETE $poe_kernel );
 
-$VERSION = '0.20';
+$VERSION = '0.21';
 *TRUE    = \1;
 *FALSE   = \0;
 *KEEP    = \0;
@@ -121,9 +124,12 @@ sub initialize
         else
         {
             # grab our args
-            $self->{lc $_} = $args{$_} if( exists( $our_args{lc $_} ) );
-            # delete them if appropriate
-            delete( $args{ $_ } )      if( $our_args{lc $_} == $DELETE );
+            if( exists( $our_args{lc $_} ) )
+            {
+                $self->{lc $_} = $args{$_};
+                # delete them if appropriate
+                delete( $args{ $_ } ) if( $our_args{lc $_} == $DELETE );
+            }
         }
     }
 
@@ -387,6 +393,7 @@ sub _notify_of_event
     my( $notify_count, %seen );
 
     # Prepend our extra recipients to the list, but don't send two events.
+    no warnings 'uninitialized';
     my @recipients = grep { not $seen{$_}++ }
         ( @$extra_recips, keys( %{$self->{events}->{$event}} ) );
 
@@ -702,11 +709,11 @@ POE::Component::Client::opentick - A POE component for working with opentick.com
 
 =head1 DESCRIPTION
 
-This POE component allows you to easily interface with opentick.com's
-market data feed service using the power of POE to handle the asynchronous,
-simultaneous requests allowed with their protocol.  This service provides
-both real-time and historical data, much of it free, others based on
-subscriptions.
+B<POE::Component::Client::opentick> allows you to easily interface with
+opentick.com's market data feed service using the power of POE to handle
+the asynchronous, simultaneous requests allowed with their protocol.
+This service provides both real-time and historical market data, much of
+it free of charge, other data based on subscriptions.
 
 It is primarily designed as an interface library, for example, to log to a
 database, rather than a standalone client application to query market data,
@@ -715,10 +722,10 @@ although it will work fine in both regards.
 B<NOTE>: This is primarily the documentation for the lower-level POE
 component itself.  You may be looking for 
 L<POE::Component::Client::opentick::OTClient>, which is part of this
-distribution, and provides an opentick.com B<otFeed-compatible> front-end
-interface for this component.
+distribution, and provides an opentick.com B<otFeed> Standard API-compatible
+front-end interface for this component.
 
-B<PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE>
+PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE
 
 Please read the L<FAQ|POE::Component::Client::opentick::FAQ>.  It should
 answer 99% of your questions.  Then come back here for comprehensive
@@ -726,38 +733,38 @@ documentation on how to use the interface.
 
 =head1 CONSTRUCTOR
 
-=over 4
+=head2 spawn()
 
-=item B<$obj = spawn(> I<[ var =E<gt> value, ... ]> B<)>
+    my $opentick = POE::Component::Client::opentick->spawn(
+            Username => 'Steve',        # Your opentick.com username
+            Password => 'Zissou',       # Your opentick.com password
+            Notifyee => 'myclient',     # POE alias of client session
+            Events   => [ 'all' ],      # Arrayref of events to trap
+    );
 
 Spawn a new POE component, connect to the opentick server, log in, and
 get ready for action.
 
-RETURNS: blessed $object, or undef on failure.
+B<ARGUMENTS:>
 
-ARGUMENTS:
-
-All arguments are of the hash form  Var => Value.  B<spawn()> will complain
-and exit if they do not follow this form.
+All arguments are of the hash form  Var =E<gt> Value.  L</spawn()> will
+complain and exit if they do not follow this form.
 
 =over 4
 
-=item B<Username>           [ I<required> ] (but see B<NOTE>)
+=item B<Username>           [ I<required> ] (but see NOTE)
 
-=item B<Password>           [ I<required> ] (but see B<NOTE>)
+=item B<Password>           [ I<required> ] (but see NOTE)
 
 These are your login credentials for opentick.com.  If you do not have an
 opentick.com account, please visit their website (L</SEE ALSO>) to create
-one.  Note, that it is not a free service, but it is very inexpensive.
-(I don't work for them.)
+one.  Note, that it is not necessarily a free service, but it is very
+inexpensive.  (I don't work for them.)
 
-If you do not have an account with them, this component is fairly useless to
-you, so what are you still doing reading this?
-
-B<NOTE>: A username and password I<MUST> be specified either as arguments
-to spawn() or via the B<OPENTICK_USER> and/or B<OPENTICK_PASS> environment
-variables (detailed in L</ENVIRONMENT> below), or the component will throw an
-exception and complain.
+B<NOTE:> A username and password I<MUST> be specified either as arguments
+to B<spawn()> or via the L</OPENTICK_USER> and/or L</OPENTICK_PASS>
+environment variables (detailed in L</ENVIRONMENT> below), or the component
+complain and throw an exception.
 
 =item B<Events>             [ I<required> ]
 
@@ -770,23 +777,22 @@ with relevant data passed as arguments.
 
 I<Both of these are mandatory.>
 
-The string 'all' works as a shortcut to just register for all events.
-
 For a list of events for which you can register, see the L</EVENTS> section.
+The string I<'all'> works as a shortcut to just register for all events.
 
-=item B<AutoLogin>          [ default: B<TRUE> ]
+=item B<AutoLogin>          [ default: I<TRUE> ]
 
 Set to automatically log into the opentick server upon POE kernel startup.
 
-B<NOTE>: This does not affect automatic reconnection, which is set with the
-B<AutoReconn> option, and is disabled if you explicitly log out.
+B<NOTE:> This does not affect automatic reconnection, which is set with the
+B<AutoReconnect> option, and is disabled if you explicitly log out.
 
-=item B<Realtime>           [ default: B<FALSE> ]
+=item B<Realtime>           [ default: I<FALSE> ]
 
 Request real-time quote information.  Pass in a TRUE value to enable it.
 It is implemented on their service by connecting you to a different port.
 
-=item B<RawData>            [ default: B<FALSE> ]
+=item B<RawData>            [ default: I<FALSE> ]
 
 The default response to your queries from the opentick server comes to you
 as a L<POE::Component::Client::opentick::Record> object, which has
@@ -794,53 +800,53 @@ accessor methods and additional features you can use to examine the data,
 but if you prefer to receive simple @arrays, set this option to a TRUE
 value.
 
-=item B<Alias>              [ default: B<opentick> ]
+=item B<Alias>              [ default: I<opentick> ]
 
 The alias under which the opentick component will be registered within POE.
 See the POE documentation for further details.
 
-=item B<Servers>    [ default: B<[ feed1.opentick.com, feed2.opentick.com ]> ]
+=item B<Servers>    [ default: I<[ feed1.opentick.com, feed2.opentick.com ]> ]
 
 An arrayref of server hostnames with which to connect to the opentick
 service.  
 
-=item B<Port>               [ default: B<10015> ]
+=item B<Port>               [ default: I<10015> ]
 
 The port number to which to connect.  Two are default for the protocol:
 10010 (realtime) and 10015 (delayed).
 
-B<NOTE>: If you specify a Port setting, it will be used regardless;
+B<NOTE:> If you specify a Port setting, it will be used regardless;
 otherwise the port is selected based on the B<Realtime> setting
 (detailed next).
 
-=item B<ConnTimeout>        [ default: B<30> ]
+=item B<ConnTimeout>        [ default: I<30> ]
 
 Timeout in seconds before declaring this connection attempt to have failed.
 
-NOTE: This also covers OT_LOGIN, so the actual timeout is from initiating
-the socket connection until reaching OT_STATUS_LOGGED_IN.
+B<NOTE:> This also covers OT_LOGIN, so the actual timeout is from
+initiating the socket connection until reaching OT_STATUS_LOGGED_IN.
 
-=item B<AutoReconnect>      [ default: B<TRUE> ]
+=item B<AutoReconnect>      [ default: I<TRUE> ]
 
-Boolean.  Set TRUE to automatically reconnect to the server when
-disconnected, false otherwise.
+Boolean.  Set I<TRUE> to automatically reconnect to the server when
+disconnected, I<FALSE> otherwise.
 
-=item B<ReconnInterval>     [ default: B<60> ]
+=item B<ReconnInterval>     [ default: I<60> ]
 
 Set to the delay you wish between attempts to automatically reconnect to the
 server.
 
 Please be polite with this setting.
 
-=item B<ReconnRetries>      [ default: B<5> ]
+=item B<ReconnRetries>      [ default: I<5> ]
 
 Set to the number of times you wish to attempt to retry before giving up.
-(Set to B<0> to try to reconnect forever, waiting B<ReconnInterval> seconds
-between attempts.)
+(Set to I<0> (zero) to try to reconnect forever, waiting B<ReconnInterval>
+seconds between attempts.)
 
-=item B<BindAddress>        [ default: B<undef> ]
+=item B<BindAddress>        [ default: I<undef> ]
 
-=item B<BindPort>           [ default: B<undef> ]
+=item B<BindPort>           [ default: I<undef> ]
 
 Set these if you wish to bind to a specific local address and local port
 for outgoing connections, for instance, if you are running this on a
@@ -849,89 +855,84 @@ and port.
 
 Don't bother using these unless you need them.  You'll know if you do.
 
-=item B<ProtocolVer>        [ default: B<4> ]
+=item B<ProtocolVer>        [ default: I<4> ]
 
 =item B<MacAddr>            [ default: some 3Com address ]
 
-=item B<Platform>           [ default: B<1> (opentick) ]
+=item B<Platform>           [ default: I<1> (opentick) ]
 
-=item B<PlatformPass>       [ default: B<''> ]
+=item B<PlatformPass>       [ default: I<''> ]
 
-=item B<OS>                 [ default: B<20> (Linux) ]
+=item B<OS>                 [ default: I<20> (Linux) ]
 
 Internal variables used for the opentick protocol itself.  I have set sane
 defaults.  Unless you I<REALLY> know what you are doing and have read their
-protocol guide thoroughly, understand it, and know the constants values for
+protocol guide thoroughly, understand it, and know the constant values for
 these, just leave them alone.
 
-If you tweak these and your account becomes disabled, don't even consider
-blaming me or asking for support.
+If you tweak these and your account becomes disabled, don't blame me or ask
+me for support with the modified settings.  Retest with the defaults.
 
-Also, if you tweak these at all and you ask for support, the first thing you
-will be told is to UNTWEAK them, so just leave them alone.  Really.
+=item B<Debug>              [ default: I<FALSE> ]
 
-=item B<Debug>              [ default: B<FALSE> ]
+Set to enable (lots of) debugging output from this component.
 
-Set to enable (lots of) debugging output from the suite.
-
-=item B<Quiet>              [ default: B<FALSE> ]
+=item B<Quiet>              [ default: I<FALSE> ]
 
 Set to have the suite not print ANYTHING AT ALL (it doesn't much anyway,
 but you may get the occasional warning).  The only way you will be able
-to receive status with the suite is via sending and receiving POE events.
+to receive status from the suite is via sending and receiving POE events.
 
 =back
 
-=back
+B<RETURNS:> blessed I<$object>, or undef on failure.
 
-=head2 Example
+=head2 initialize()
 
- my $opentick = POE::Component::Client::opentick->spawn(
-        Notifyee => 'myclient',     # POE alias of client session
-        Events   => [ 'all' ],      # Arrayref of events to trap
-        Username => 'Steve',        # Your opentick.com username
-        Password => 'Zissou',       # Your opentick.com password
- );
+    $self->initialize();
 
-=head1 METHODS
+Initialize the object.  If you are subclassing, overload this, not
+L</spawn()>.
 
-=over 4
+=head2 call()
 
-=item B<initialize( )>
+=head2 post()
 
-Initialize arguments.  If you are subclassing, overload this, not spawn().
+=head2 yield()
 
-=item B<call( event =E<gt> @args )>
-
-=item B<post( event =E<gt> @args )>
-
-=item B<yield( event =E<gt> @args )>
+    $opentick->call( someevent => @args );
+    $opentick->post( someevent => @args );
+    $opentick->yield( someevent => @args );
 
 These correspond to their POE counterparts, but automatically direct
-the events to the OT session instead of requiring the extra argument of the
-target session (in the case of call() and post()).
+the events to the OpenTick session instead of requiring the extra argument
+of the target session (in the case of call() and post()).
 
 They are useful as time-savers so you don't have to mess around with
-locating the Session ID, passing in the alias, etc.
+locating the POE session ID, passing in the POE alias, etc.
 
-=item B<shutdown( )>
+=head2 shutdown()
 
-Logs out and disconnects from the server, closes down the OT component
-and eventually exits.  You need to remove all references to the object
-in order to have it truly destroyed, of course.
+Logs out and disconnects from the opentick server, closes down the OT
+component, and eventually exits.  You need to remove all references to
+the object in order to have it truly destroyed, of course.
 
-After this, you must call spawn() again to create a new object/session.
+After this, you must call L</spawn()> again to create a new object/session.
 
-=item B<ready( )>
+=head2 ready()
+
+    my $isready = $opentick->ready();
 
 Returns BOOLEAN depending upon whether the OT component is ready to accept
 API requests (i.e., POE is running, the Session exists, is connected to
 the opentick.com server, and has successfully logged in).
 
 Polling this would be silly.  It would be better to just register to
-receive the B<ot_on_login> or B<ot_status_changed> L</EVENTS>.
+receive the L</ot_on_login> or L</ot_status_changed> events.
 
-=item B<statistics( )>
+=head2 statistics()
+
+    my @stats = $opentick->statistics();
 
 Returns some statistics about the B<$opentick> object and connection.  More
 fields will be added over time, but right now it returns a list with the
@@ -961,11 +962,13 @@ following fields:
 
 =back
 
-=item B<new( )>
+=head2 new()
 
-Nothing.  Don't use this.  Use B<spawn()> instead.
+Nothing.  Don't use this.  Use L</spawn()> instead.
 
-=item B<get_status( )>
+=head2 get_status()
+
+    my $status = $opentick->get_status();
 
 Returns the current state of the object, as specified by the opentick
 protocol specification.
@@ -986,39 +989,43 @@ Possible states are:
 
 See L<POE::Component::Client::opentick::Constants> for more information.
 
-=item B<get_uptime( )>
+=head2 get_uptime()
+
+    my $uptime = $opentick->get_uptime();
 
 Returns object lifetime in seconds.
 
-=item B<login( )>
+=head2 login()
+
+    $opentick->login();
 
 Begin the login process.
 
-=item B<logout( )>
+=head2 logout()
+
+    $opentick->logout();
 
 Log out from the opentick server, and disconnect the socket.
 
-=item B<set_hosts( )>
+=head2 set_hosts()
 
-=item B<set_port( )>
+=head2 set_port()
 
-=item B<set_platform_id( )>
+=head2 set_platform_id()
 
-These exist solely for higher-level compatibility with the otFeed standard
-API.  They are lame.  Don't use them.  Use arguments to the object
-constructor, B<spawn()>, instead.
-
-=back
+These exist solely for higher-level compatibility with the B<otFeed> Standard
+API.  Don't use them.  Pass arguments to the object constructor L</spawn()>
+instead.
 
 =head1 EVENTS
 
 To do anything useful with this module, you must register to receive events
-upon important occurrences.  You do this either by using the Events => []
-argument to spawn() (preferred), or by sending a 'register' event to the
+upon important occurrences.  You do this either by using the Events =E<gt> []
+argument to L</spawn()> (preferred), or by sending a 'register' event to the
 object using POE, with an \@arrayref argument containing the list of events
 for which you wish to register.
 
-All events sent to your session will have at least the following two
+All events sent to your session will receive I<at least> the following two
 arguments:
 
  ( $request_id, $command_id ) = @_[ARG0,ARG1];
@@ -1028,88 +1035,88 @@ different or additional arguments, they will be listed and described.
 
 Below is a list of events for which you may register:
 
-=over 4
-
-=item B<all>
+=head3 all
 
 A time saver.  Registers to receive all events.  You don't even have to
 set up handlers for all of them, just the ones you want.
 
-=item B<ot_on_login>
+=head3 ot_on_login
 
 Sent upon successful login to the opentick.com server.
 
-=item B<ot_on_logout>
+=head3 ot_on_logout
 
 Sent upon logout from the opentick.com server.
 
-=item B<ot_on_data>
+=head3 ot_on_data
 
 Sent upon the receipt of data from a request you have placed.
 
 Extra arguments: ( @data ) = @_[ARG2..$#_]
 
-@data corresponds to the individual fields of the particular API call for
+I<@data> corresponds to the individual fields of the particular API call for
 which this is a response to.  For more information on the API calls, see the
 L</OPENTICK API> section below, as well as the L<http://www.opentick.com/>
 home page and documentation wiki.
 
-=item B<ot_on_error>
+=head3 ot_on_error
 
 Sent upon any type of error.
 
 Extra arguments: ( $Error ) = @_[ARG2]
 
-$Error is an object of type POE::Component::Client::opentick::Error, and
-contains detailed information about the error, at what point it occurred,
+I<$Error> is an object of type L<POE::Component::Client::opentick::Error>,
+and contains detailed information about the error, at what point it occurred,
 etc.
 
-However, the object's stringify() method is overloaded, so it prints a
+However, the object's I<stringify()> method is overloaded, so it prints a
 meaningful and complete error message if you simply call something similar
 to C<print "$Error">.
 
 For more detailed documentation, see
 L<POE::Component::Client::opentick::Error>.
 
-=item B<ot_request_complete>
+=head3 ot_request_complete
 
 Sent upon the completion of a request.
 
-=item B<ot_request_cancelled>
+=head3 ot_request_cancelled
 
 Sent upon the successful cancellation of a request.
 
-=item B<ot_connect_failed>
+=head3 ot_connect_failed
 
 Sent upon failed connection and exhaustion of all retry attempts.
 
-=item B<ot_status_changed>
+=head3 ot_status_changed
 
 Sent upon any status change; will be sent as a duplicate request, alongside
-(but slightly later than) ot_on_login.
+(but slightly later than) L</ot_on_login>.
 
-Primarily exists for compatibility with OTClient.pm, but traps all status
+Primarily exists for compatibility with OTClient.pm, but traps I<all> status
 changes; not just login and logout.
-
-=back
 
 =head1 OPENTICK API
 
 The opentick.com API provides several commands that you may send.  All of the
-API requests return a unique numeric $request_id for the particular command
-you issue.  You properly send these commands by using the $object->call()
-method (or the $poe_kernel->call() method with the session ID of the
-component), so that you receive a numeric $request_id as a return value.
-->yield() and ->post() are asynchronous, and do not return the $request_id.
+API requests return a unique numeric I<$request_id> for the particular command
+you issue.  You properly send these commands by using the L</call()>
+method (or the I<$poe_kernel-E<gt>call()> method with the session ID of the
+component), so that you receive a numeric I<$request_id> as a return value.
+L</yield()> and L</post()> are asynchronous, and do not return a
+I<$request_id>.
 
-Because opentick is an asychronous protocol, B<getting this $request_id into
-your client is essential to keep track of and match particular requests with
-their corresponding responses.>
+Because opentick is an asychronous protocol and allows multiple requests at
+once, B<getting this $request_id into your client is essential, to keep
+track of and match particular requests with their corresponding responses.>
 
 It is left as an exercise to the implementor (YOU!) as to how best keep
-track of these, although a %hash would work quite well.  See the I<examples/>
-directory of this distribution for some examples of how to do this, if you
-are not sure.
+track of these, although a I<%hash> would work quite well.  See the
+B<examples/> directory of this distribution for some examples of how to do
+this, if you are not sure.
+
+I don't explain their protocol completely in this document.  A link to their
+documentation is found under L</SEE ALSO>.
 
 =head2 Arguments
 
@@ -1117,18 +1124,18 @@ Most commands take at least the following two arguments:
 
 =over 4
 
-=item $exchange     = STRING
+=item I<$exchange>     = STRING
 
 The corresponding exchange code in the opentick.com format.
 
 See L<http://www.opentick.com/dokuwiki/doku.php?id=general:exchange_codes>
 for details.
 
-=item $symbol       = STRING
+=item I<$symbol>       = STRING
 
 The corresponding symbol in the opentick.com format.
 
-Use B<requestListSymbols> if you actually want a list, otherwise these just
+Use L</requestListSymbols> if you actually want a list, otherwise these just
 generally correspond to the equity/security symbol from the exchange.
 
 See L<http://www.opentick.com/dokuwiki/doku.php?id=general:symbol_formats>
@@ -1136,31 +1143,34 @@ for details.
 
 =back
 
-=head3 Other Common Arguments
+=head2 Other Common Arguments
 
 =over 4
 
-=item $startDate    = EPOCH DATE
+=item I<$startDate>    = EPOCH DATE
 
-=item $endDate      = EPOCH DATE
+=item I<$endDate>      = EPOCH DATE
 
 The time, in seconds, since Jan 1, 1970 00:00:00 UTC.  This is the standard
 UNIX time format, as returned by the Perl function B<time()>.
 
-=item $expMonth     = INTEGER (1-12)
+Including Date/Time conversion routines in this component is out of scope.
+Please read L<POE::Component::Client::opentick::FAQ/Why do you only accept UNIX epoch dates?>.
 
-=item $expYear      = INTEGER (4-DIGIT YEAR)
+=item I<$expMonth>     = INTEGER (1-12)
 
-Self-explanatory.
+=item I<$expYear>      = INTEGER (4-DIGIT YEAR)
 
-=item $request_id   = INTEGER
+Expiration month and year, as appropriate to the particular request.
+
+=item I<$request_id>   = INTEGER
 
 A numeric request, as previously returned from an API call.  Usually used
 for stream cancellation.
 
-=item $minStrike    = REAL
+=item I<$minStrike>    = REAL
 
-=item $maxStrike    = REAL
+=item I<$maxStrike>    = REAL
 
 The minimum and maximum strike prices for which you wish to filter.
 
@@ -1173,170 +1183,165 @@ Most other arguments take a range of constants.  See the L<opentick API document
 Here are the API-related events that you can issue to the POE component,
 which correspond to the opentick.com API:
 
-=over 4
-
-=item B<requestSplits>
+=head3 requestSplits
 
 ARGUMENTS: ( $exchange, $symbol, $startDate, $endDate );
 
-=item B<requestDividends>
+=head3 requestDividends
 
 ARGUMENTS: ( $exchange, $symbol, $startDate, $endDate );
 
-=item B<requestOptionInit>
+=head3 requestOptionInit
 
 ARGUMENTS: ( $exchange, $symbol, $expMonth, $expYear, $minStrike,
 $maxStrike, $paramsType );
 
-=item B<requestHistData>
+=head3 requestHistData
 
 ARGUMENTS: ( $exchange, $symbol, $startDate, $endDate, $datatype, $interval );
 
-=item B<requestHistTicks>
+=head3 requestHistTicks
 
 ARGUMENTS: ( $exchange, $symbol, $startDate, $endDate, $mask );
 
-=item B<requestTickSnapshot>
+=head3 requestTickSnapshot
 
 ARGUMENTS: ( $exchange, $symbol, $mask );
 
-=item B<requestOptionChainU>
+=head3 requestOptionChainU
 
 ARGUMENTS: ( $exchange, $symbol, $expMonth, $expYear, $mask, $minStrike,
 $maxStrike, $paramsType );
 
-=item B<requestOptionChainSnapshot>
+=head3 requestOptionChainSnapshot
 
 ARGUMENTS: ( $exchange, $symbol, $expMonth, $expYear, $mask, $minStrike,
 $maxStrike, $paramsType );
 
-=item B<requestEquityInit>
+=head3 requestEquityInit
 
 ARGUMENTS: ( $exchange, $symbol );
 
-=item B<requestBookStream>
+=head3 requestBookStream
 
 ARGUMENTS: ( $exchange, $symbol );
 
-=item B<requestBookStreamEx>
+=head3 requestBookStreamEx
 
 ARGUMENTS: ( $exchange, $symbol, $mask );
 
-=item B<requestHistBooks>
+=head3 requestHistBooks
 
 ARGUMENTS: ( $exchange, $symbol, $startDate, $endDate, $mask );
 
-=item B<requestTickStream>
+=head3 requestTickStream
 
 ARGUMENTS: ( $exchange, $symbol );
 
-B<NOTE:> Deprecated by opentick.com; use requestTickStreamEx instead.
+B<NOTE:> Deprecated by opentick.com; use L</requestTickStreamEx> instead.
 
-=item B<requestTickStreamEx>
+=head3 requestTickStreamEx
 
 ARGUMENTS: ( $exchange, $symbol, $mask );
 
-=item B<requestOptionChain>
+=head3 requestOptionChain
 
 ARGUMENTS: ( $exchange, $symbol, $expMonth, $expYear );
 
-B<NOTE:> Deprecated by opentick.com; use requestOptionChainEx instead.
+B<NOTE:> Deprecated by opentick.com; use L</requestOptionChainEx> instead.
 
-=item B<requestOptionChainEx>
+=head3 requestOptionChainEx
 
 ARGUMENTS: ( $exchange, $symbol, $expMonth, $expYear, $mask );
 
-=item B<requestListExchanges>
+=head3 requestListExchanges
 
 ARGUMENTS: ( NONE! )
 
-NOTE: You will I<NOT> receive an B<on_request_complete> event upon
+NOTE: You will I<NOT> receive an L</ot_request_complete> event upon
 completion of this command.
 
-=item B<requestListSymbols>
+=head3 requestListSymbols
 
 ARGUMENTS: ( $exchange );
 
-NOTE: You will I<NOT> receive an B<on_request_complete> event upon
+NOTE: You will I<NOT> receive an L</ot_request_complete> event upon
 completion of this command.
 
-=item B<requestListSymbolsEx>
+=head3 requestListSymbolsEx
 
 ARGUMENTS: ( $exchange, $symbol, $mask );
 
-$symbol in this instance acts as a filter, matching specified symbols as
+I<$symbol> in this instance acts as a filter, matching specified symbols as
 either a whole or a substring (depending on the value of $mask).
 
-NOTE: You will I<NOT> receive an B<on_request_complete> event upon
+NOTE: You will I<NOT> receive an L</ot_request_complete> event upon
 completion of this command.
 
-=item B<cancelTickStream>
+=head3 cancelTickStream
 
 ARGUMENTS: ( $request_id )
 
-=item B<cancelBookStream>
+=head3 cancelBookStream
 
 ARGUMENTS: ( $request_id )
 
-=item B<cancelOptionChain>
+=head3 cancelOptionChain
 
 ARGUMENTS: ( $request_id )
 
-=item B<cancelHistData>
+=head3 cancelHistData
 
 ARGUMENTS: ( $request_id )
-
-=back
 
 More information regarding the opentick API, exchange codes, field
 definitions, etc., can be found at L<http://www.opentick.com>.
 
-B<NOTE>: Several of the opentick API commands return different values for
-CommandType.  Generally, these are commands that were implemented later,
-that extend functionality of the earlier commands, and they return their
-base types.  For example, requestTickStreamEx (cid=16) returns a CommandType
-of 3 (requestTickStream).  You should keep this in mind when writing your
-result handlers.  I could program around it, and I may in a later version,
-but as long as you keep track of requests by RequestID instead of
-CommandType (which you should anyway), it should not pose a problem.
+B<NOTE:> Several of the opentick API commands return different than expected
+values for I<CommandType>.  Generally, these are commands that were implemented
+later, that extend functionality of earlier commands, and they return
+their base types.  For example, L</requestTickStreamEx> (cid=16) returns a
+I<CommandType> of 3 (L</requestTickStream>).  You should keep this in mind
+when writing your result handlers.  I could program around it, and I may in
+a later version, but as long as you keep track of requests by I<$requestID>
+instead of I<CommandType> (which you should anyway), it should not pose a
+problem.
 
 =head1 ENVIRONMENT
 
 This module suite uses the following environment variables:
 
-=over 4
+=head3 OPENTICK_USER
 
-=item B<OPENTICK_USER>
-
-=item B<OPENTICK_PASS>
+=head3 OPENTICK_PASS
 
 These are used as a fallback mechanism, in case Username or Password are
-not passed as arguments to B<spawn()>.  If after exhausting these two
-possibilities, the username and password are still not set, the suite will
-signal an exception and exit.
+not passed as arguments to L</spawn()>.  If after exhausting these two
+possibilities, the username and password are not set, the suite will throw
+an exception and exit.
 
 They are also provided as a security option, since many people do not desire
 to store passwords directly in their software.
 
-=item B<OPENTICK_LIB>
+=head3 OPENTICK_LIB
 
-This is part of the official opentick otFeed software.  This module suite
-will also use this environment variable when attempting to locate the
-original opentick library, to preload constant values used in the protocol.
+This is used in the official opentick B<otFeed> Standard API software.
+This module suite will also use this environment variable when attempting
+to locate the original opentick library, to preload constant values used
+in the protocol.
 
-L<POE::Component::Client::opentick::Constants.pm> attempts to load the
-original libraries from @INC, and will prepend the directory specified in
-B<OPENTICK_LIB> to the @INC search path, if it is set.
+L<POE::Component::Client::opentick::Constants> attempts to load the
+original libraries from I<@INC>, and will prepend the directory specified in
+B<OPENTICK_LIB> to the I<@INC> search path, if it is set.
 
-If the original libraries are not found, that is not a problem; we use our
-own values; but this is an attempt to maintain compatibility with the
-mainline software itself.
-
-=back
+If the original libraries are not found, this is not a problem; we use our
+own values.  This is only an attempt to maintain derived compatibility with
+the mainline software itself should they suddenly change features between
+versions of this software.
 
 =head1 LOGGING OUT AND SIGNALS
 
-It would be polite to opentick.com, and follow the protocol, if you ensured
+It would be polite to opentick.com, and follow their protocol, if you ensured
 that you always logged out before actually exiting your client application.
 I have included several methods of doing so, but I am hesitant to include a
 signal handler in this module, as that is really the responsibility of your
@@ -1346,14 +1351,14 @@ An easy way to do this would be to use a signal handler similar to the
 following, to trap SIGINT, and repeat for whichever other signals you wish
 to trap:
 
- $poe_kernel->sig( INT  => 'event_quit' );
- $poe_kernel->sig( TERM => 'event_quit' );
+    $poe_kernel->sig( INT  => 'event_quit' );
+    $poe_kernel->sig( TERM => 'event_quit' );
 
- sub event_quit {
-     $opentick->call( 'shutdown' );
-     $poe_kernel->alias_remove( 'your_alias' );
-     exit(1);
- }
+    sub event_quit {
+        $opentick->call( 'shutdown' );
+        $poe_kernel->alias_remove( 'your_alias' );
+        exit(1);
+    }
 
 More information about POE's signal handling can be found at
 L<POE::Kernel/"Signal Watcher Methods">.
@@ -1364,20 +1369,17 @@ decision-making process, and this could change at any time.
 
 If your account gets banned, don't cry to me.
 
-=head1 NOTES
-
-Yes, the lowercase "opentick" in the module name was on purpose, to
-correspond with the opentick logo and brand name.
-
 =head1 SEE ALSO
+
+L<POE::Component::Client::opentick::FAQ>
 
 The L<POE> documentation, L<POE::Kernel>, L<POE::Session>
 
-L<http://poe.perl.org/>
+L<http://poe.perl.org/> - All about the Perl Object Environment (POE)
 
-L<http://www.opentick.com/>
+L<http://www.opentick.com/> - The official opentick site
 
-L<http://www.opentick.com/dokuwiki/doku.php>
+L<http://www.opentick.com/dokuwiki/doku.php> - opentick.com's documentation
 
 The examples/ directory of this module's distribution.
 
@@ -1389,9 +1391,9 @@ world!
 =head1 AUTHOR
 
 Please kindly read the L<FAQ|POE::Component::Client::opentick::FAQ> before
-emailing me with questions.  Your answer is likely in there.
+emailing me with questions.  Your answer is probably in there.
 
-Jason McManus (infi) -- infidel@cpan.org
+Jason McManus (INFIDEL) - C<< infidel AT cpan.org >>
 
 =head1 LICENSE
 

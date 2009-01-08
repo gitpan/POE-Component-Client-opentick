@@ -1,13 +1,16 @@
 package POE::Component::Client::opentick::OTClient;
 #
-#   opentick.com POE client, otFeed API facade class.
+#   opentick.com POE client, otFeed Standard API facade class.
 #
 #   infi/2008
+#
+#   $Id: OTClient.pm 56 2009-01-08 16:51:14Z infidel $
 #
 #   Full POD documentation after __END__
 #
 
 use strict;
+use warnings;
 use Socket;
 use Carp qw( croak );
 use Data::Dumper;
@@ -24,7 +27,7 @@ use POE::Component::Client::opentick;
 
 use vars qw( $VERSION $TRUE $FALSE $poe_kernel );
 
-($VERSION) = q$Revision: 47 $ =~ /(\d+)/;
+($VERSION) = q$Revision: 56 $ =~ /(\d+)/;
 *TRUE      = \1;
 *FALSE     = \0;
 
@@ -144,7 +147,7 @@ sub initialize
 }
 
 #######################################################################
-###   otFeed API Methods                                            ###
+###   otFeed Standard API methods                                   ###
 #######################################################################
 
 sub requestTickStream
@@ -316,9 +319,6 @@ sub cancelBookStream
     my( $self, $req_id ) = @_;
 
     return( $self->_cancel_request( 'cancelBookStream', $req_id ) );
-    my( $self ) = @_;
-
-    return;
 }
 
 sub cancelMarketDepth
@@ -337,7 +337,7 @@ sub cancelHistData
 }
 
 ########################################################################
-###   otFeed Auxiliary Functions                                     ###
+###   otFeed Standard API Auxiliary Functions                        ###
 ########################################################################
 
 # Halfassed workaround.
@@ -671,7 +671,7 @@ POE::Component::Client::opentick::OTClient - An opentick.com otFeed-compatible i
 
 =head1 QUICK START FOR THE IMPATIENT
 
-See F<examples/OTClient-example.pl>
+See F<examples/OTClient-example.pl>.
 
 But please read this documentation when you are done.  99% of your questions
 will be answered below.
@@ -682,7 +682,7 @@ This facade interface component allows you to easily interact with
 opentick.com's market data feed service using the power of POE to
 handle the asynchronous, simultaneous requests allowed with their protocol.
 
-The full documentation for the otFeed standard is available at:
+The full documentation for the B<otFeed> Standard API is available at:
 
 L<http://www.opentick.com/dokuwiki/doku.php?id=general:standard>
 
@@ -699,24 +699,23 @@ implementation.
 
 =head1 DIFFERENCES WITH THE MAINLINE API
 
-=over 4
+=head2 startup() callback
 
-=item B<startup() callback>
-
-The main entry point is provided in an additional B<startup> callback.
+Your main entry point is provided in an additional L</startup()> callback.
 
 B<You should overload this and place your client initialization code into
 it.>
 
-=item B<Other callbacks>
+=head2 Other callbacks
 
 Instead of having numerous subclasses, you simply receive a
-POE::Component::Client::opentick::Record object for EACH INDIVIDUAL RECORD
-of data from the message.
+L<POE::Component::Client::opentick::Record> object for EACH INDIVIDUAL
+RECORD of data from the message.
 
-This means that, if you use requestListExchanges, and there are 15 exchanges
-available, onListExchanges will be called 15 times, once per record, and
-passed a ::Record object with each call.
+This means that, if you use L</requestListExchanges()>, and there are 15
+exchanges available, L</onListExchanges()> will be called 15 times, once per
+record, and passed a L<POE::Component::Client::opentick::Record> object
+with each call.
 
 The documentation for L<POE::Component::Client::opentick::Record> covers the
 available accessor methods in detail.
@@ -725,35 +724,35 @@ If it should prove useful in the future to add the remaining classes back
 into this facade interface, I may consider doing so.  It doesn't strike
 me as necessary at this time, as I generally want the data itself, and both
 the data and the field names for all response types are available in
-::Record, so I personally find this interface much cleaner.
+L<POE::Component::Client::opentick::Record>, so I personally find this
+interface much cleaner.
 
-=item B<Constants>
+=head2 Constants
 
-Instead of the $Package::SubPackage::CONSTANT_NAME syntax from the mainline
-client, use OTConstant( 'OT_STATUS_OK' ) syntax.
+Instead of the C<< $Package::SubPackage::CONSTANT_NAME >> syntax from the
+mainline client, use the C<< OTConstant( 'OT_STATUS_OK' ) >> syntax.
 
-OTConstant() is exported from POE::Component::Client::opentick::Constants.
+B<OTConstant()> is exported from L<POE::Component::Client::opentick::Constants>.
 
-e.g.
+Example:
 
-use POE::Component::Client::opentick::Constant;
+    use POE::Component::Client::opentick::Constant;
 
-OTConstant('OT_FLAG_HIGH')
+    OTConstant('OT_FLAG_HIGH')
 
 It's a bit more terse, and jives with the philosophy, "export behaviour, not
-data."  (Of course, they aren't exporting anything at all, but in this case
-it is useful.)
+data."
 
-=item B<new() constructor>
+=head2 new() constructor
 
-The B<new()> constructor of the base class takes the otFeed-standard
-$username and $password arguments, but in addition, you can pass any of the
-parameters available to L<POE::Component::Client::opentick>, to initialize
-the object in a more complete fashion.  Please see those documents for these
-additional parameters.
+The B<new()> constructor of the base class takes the B<otFeed> Standard API
+I<$username> and I<$password> arguments, but in addition, you can pass any
+of the parameters available to L<POE::Component::Client::opentick>, to
+initialize the object in a more complete fashion.  Please see the respective
+documentation for these additional parameters.
 
-You shouldn't probably overload the Notifyee and Events parameters, but some
-ones worth noting might be:
+You probably shouldn't overload the I<Notifyee> and I<Events> parameters,
+but others worth noting might be:
 
 =over 4
 
@@ -771,32 +770,31 @@ ones worth noting might be:
 
 In addition, so that you don't have to store your username/password in a
 file on the filesystem, you can simply not pass them in, and use the
-B<OPENTICK_USER> and B<OPENTICK_PASS> environment variables (detailed in
+L</OPENTICK_USER> and L</OPENTICK_PASS> environment variables (detailed in
 L</ENVIRONMENT> below) to have them passed in automagically.
 
 If you do this, and still pass other arguments, you must use the following
 constructor syntax:
 
- my $opentick = OTClient->new( undef, undef, AutoLogin => 1, ... );
+    my $opentick = OTClient->new( undef, undef, AutoLogin => 1, ... );
 
-Since, to follow the API, I locked them as the first 2 arguments.
+Since, to follow the API, I<$username> and I<$password> are the first 2
+arguments.
 
-=item B<setHosts()/clearHosts()>
+=head2 setHosts() / clearHosts()
 
 These will work, but they are not paired as hostname:port combinations like
 you are likely used to.
 
 Because the underlying implementation uses these differently, you should
-probably not use these, and just rely upon the hostnames provided within the
-main application.  I keep these updated regularly, and you can additionally
-use the Servers => [] and Port => XXXXX arguments to B<new()> to explicitly
-pass them in at object construction time, for the all-too-often occasion
-when opentick's servers become unavailable.
+probably just not use these, and just rely upon the hostnames provided within
+the main application.  I keep these updated regularly, and you can
+additionally use the Servers =E<gt> [] and Port =E<gt> XXXXX arguments to
+B<new()> to explicitly pass them in at object construction time, for the
+(all-too-often) occasion when opentick's servers become unavailable.
 
 As long as you disconnect and reconnect, you can indeed change the servers
 using these methods, though.
-
-=back
 
 =head1 SUBCLASSING
 
@@ -805,25 +803,25 @@ the event handler methods with handlers of your own, as they do nothing by
 default.
 
 You should overload all methods that you want to trap, named under
-L</EVENT HANDLERS>, especially B<startup()>, as this is where you place your
-initialization code for what you wish to do once the opentick client object
-has been instantiated.
+L</EVENT HANDLERS AND CALLBACKS>, especially L</startup()>, as this callback
+is where you should place your own initialization code for what you wish to
+do once the opentick client object has been instantiated.
 
 =head1 METHODS
 
-=over 4
+=head2 new()
 
-=item B<$obj = new( $username, $password [, { arg => value, ... } ] )>
+    my $obj = new( $username, $password, \%args );
 
 Create a new OTClient object, connect to the opentick server, log in, and
 get ready for action.
 
-RETURNS: blessed $object or undef
+RETURNS: blessed I<$object>, or I<undef>
 
 ARGUMENTS:
 
-All arguments are of the hash form  Var => Value.  spawn() will complain and
-exit if they do not follow this form.
+All arguments are of the hash form  Var =E<gt> Value.  B<new()> will
+carp and exit if they do not follow this form.
 
 =over 4
 
@@ -840,311 +838,381 @@ If you do not have an account with them, this component is fairly useless to
 you, so what are you still doing reading this?
 
 B<NOTE>: A username and password I<MUST> be specified either as arguments
-to spawn() or via the B<OPENTICK_USER> and/or B<OPENTICK_PASS> environment
-variables (detailed in B<ENVIRONMENT> below), or the component will throw an
+to new() or via the L</OPENTICK_USER> and/or L</OPENTICK_PASS> environment
+variables (detailed in L</ENVIRONMENT> below), or the component will throw an
 exception and exit.
 
-B<ALL other arguments>, passed in the 3rd argument, as a hashref, are handed
-off as options to the constructor for the primary ::opentick component.
-Please refer to L<POE::Component::Client::opentick> for details on these
-arguments.
+If you wish to use the environment variables, do so as such:
+
+    my $object = new( undef, undef, \%args );
+
+B<ALL OTHER ARGUMENTS>, passed in via the 3rd argument as a hashref, are
+handed off as options to the constructor for the primary B<::opentick>
+component.  Please refer to L<POE::Component::Client::opentick/spawn()>
+for details on these arguments.
 
 =back
 
-=back
+=head2 initialize()
 
-=head1 OPENTICK API
+    $object->initialize( %args );
+
+This is not part of the official spec.  It initializes the object and
+starts initalizes the object, and starts the appropriate POE sessions.
+Useful for subclassing.
+
+Put your application startup code in L</startup()>.  This is for OBJECT
+INSTANCE INITIALIZATION.
+
+=head1 OPENTICK API METHODS
 
 The opentick.com API provides several commands that you may send.  All of the
-API requests return a unique numeric $request_id for the particular command
-you issue.  You properly send these commands by using the $object->call()
-method (or the $poe_kernel->call() method with the session ID of the
-component), so that you receive a numeric $request_id as a return value.
-->yield() and ->post() are asynchronous, and do not return the $request_id.
+API requests return a unique numeric I<$request_id> for the particular command
+you issue.  You properly send these commands by using the $object-E<gt>call()
+method (or the $poe_kernel-E<gt>call() method with the session ID of the
+component), so that you receive a numeric I<$request_id> as a return value.
+(B<yield()> and B<post()> are asynchronous, and do not return the
+I<$request_id>).
 
-Getting this $request_id into your client is essential to keep track of and
-match particular requests with their corresponding responses.
+Getting this I<$request_id> into your client is essential to keep track of
+and match your individual requests with their corresponding responses.
 
 It is left as an exercise to the implementor (YOU!) as to how best keep
-track of your requests, although a %hash would work quite well.  See the
-I<examples/> directory for some examples of how to do this if you are not
+track of your requests, although a I<%hash> would work quite well.  See the
+F<examples/> directory for some examples of how to do this if you are not
 sure.
 
 Here are the API-related events that you can issue to the POE component,
-which correspond to the opentick.com API.  If they deviate from the otFeed
-API, it will be noted.
+which correspond to the opentick.com API.  If and where they deviate from
+the official B<otFeed> Standard API, it will be noted.
 
-=over 4
+=head2 addHost()
 
-=item B<initialize( %args )>
+    $object->addHost( $hostname, $port );
 
-This is not part of the official spec; just initalizes the object, and
-starts the appropriate POE sessions.
+=head2 clearHosts()
 
-=item B<addHost( $hostname, $port )>
+    $object->clearHosts();
 
-=item B<clearHosts( )>
+=head2 getStatus()
 
-=item B<getStatus( )>
+    $object->getStatus();
 
-=item B<isLoggedIn( )>
+=head2 isLoggedIn()
 
-=item B<setPlatformId( $id )>
+    $object->isLoggedIn();
 
-=item B<login( )>
+=head2 setPlatformId()
 
-=item B<logout( )>
+    $object->setPlatformId( $id );
 
-=item B<getEntityById( $request_id )>
+=head2 login()
+
+    $object->login();
+
+=head2 logout()
+
+    $object->logout();
+
+=head2 getEntityById()
+
+    my( $exchange, $symbol ) = $otclient->getEntityById( $request_id );
 
 Works differently from the API; returns a list consisting of the exchange
 and symbol for which the request was issued.  Returns the 2-item list
 directly, rather than storing into an OTDataEntity object.
 
-e.g.
+=head2 requestTickStream()
 
- my( $exchange, $symbol ) = $otclient->getEntityById( $request_id );
+    my $req_id = $object->requestTickStream( $exchange, $symbol [, $flags ] );
 
-=item B<requestTickStream( $exchange, $symbol [, $flags ] )>
+=head2 requestBookStream()
 
-=item B<requestBookStream( $exchange, $symbol [, $flags ] )>
+    my $req_id = $object->requestBookStream( $exchange, $symbol, [, $flags ] );
 
-=item B<requestMarketDepth( $exchange, $symbol )>
+=head2 requestMarketDepth()
 
-=item B<requestOptionChain( $exchange, $symbol, $expMonth, $expYear, $mask )>
+    my $req_id = requestMarketDepth( $exchange, $symbol );
 
-=item B<requestEquityInit( $exchange, $symbol )>
+=head2 requestOptionChain()
 
-=item B<requestHistData( $exchange, $symbol, $startDate, $endDate, $dt, $interval )>
+    my $req_id = $object->requestOptionChain( $exchange, $symbol, $expMonth, $expYear, $mask );
 
-=item B<requestHistTicks( $exchange, $symbol, $startDate, $endDate, $mask )>
+=head2 requestEquityInit()
 
-=item B<requestTodaysOHL( $exchange, $symbol )>
+    my $req_id = $object->requestEquityInit( $exchange, $symbol );
 
-=item B<requestListExchanges( )>
+=head2 requestHistData()
 
-=item B<requestListSymbols( $exchange )>
+    my $req_id = $object->requestHistData( $exchange, $symbol, $startDate, $endDate, $dt, $interval );
 
-=item B<requestHistBooks( $exchange, $symbol, $startDate, $endDate, $mask )>
+=head2 requestHistTicks()
 
-=item B<requestOptionInit( $exchange, $symbol, $expMonth, $expYear, $minStrike, $maxStrike, $paramsType )>
+    my $req_id = requestHistTicks( $exchange, $symbol, $startDate, $endDate, $mask );
 
-=item B<requestSplits( $exchange, $symbol, $startDate, $endDate )>
+=head2 requestTodaysOHL()
 
-=item B<requestDividends( $exchange, $symbol, $startDate, $endDate )>
+    my $req_id = $object->requestTodaysOHL( $exchange, $symbol );
 
-=item B<requestTickSnapshot( $exchange, $symbol, $mask )>
+=head2 requestListExchanges()
 
-=item B<requestOptionChainSnapshot( $exchange, $symbol, $expMonth, $expYear, $mask, $minStrike, $maxStrike, $paramsType )>
+    my $req_id = $object->requestListExchanges();
 
-=item B<cancelTickStream( $req_id )>
+=head2 requestListSymbols()
 
-=item B<cancelBookStream( $req_id )>
+    my $req_id = $object->requestListSymbols( $exchange );
 
-=item B<cancelMarketDepth( $req_id )>
+=head2 requestHistBooks()
 
-=item B<cancelOptionChain( $req_id )>
+    my $req_id = $object->requestHistBooks( $exchange, $symbol, $startDate, $endDate, $mask );
 
-=item B<cancelHistData( $req_id )>
+=head2 requestOptionInit()
 
-=back
+    my $req_id = $object->requestOptionInit( $exchange, $symbol, $expMonth, $expYear, $minStrike, $maxStrike, $paramsType );
+
+=head2 requestSplits()
+
+    my $req_id = $object->requestSplits( $exchange, $symbol, $startDate, $endDate );
+
+=head2 requestDividends()
+
+    my $req_id = $object->requestDividends( $exchange, $symbol, $startDate, $endDate );
+
+=head2 requestTickSnapshot()
+
+    my $req_id = requestTickSnapshot( $exchange, $symbol, $mask );
+
+=head2 requestOptionChainSnapshot()
+
+    my $req_id = $object->requestOptionChainSnapshot( $exchange, $symbol, $expMonth, $expYear, $mask, $minStrike, $maxStrike, $paramsType );
+
+=head2 cancelTickStream()
+
+    my $cancel_id = $object->cancelTickStream( $req_id );
+
+=head2 cancelBookStream()
+
+    my $cancel_id = $object->cancelBookStream( $req_id );
+
+=head2 cancelMarketDepth()
+
+    my $cancel_id = $object->cancelMarketDepth( $req_id );
+
+=head2 cancelOptionChain()
+
+    my $cancel_id = $object->cancelOptionChain( $req_id );
+
+=head2 cancelHistData()
+
+    my $cancel_id = $object->cancelHistData( $req_id );
 
 More information regarding the opentick API, exchange codes, required
 arguments, field definitions, etc., can be found at
 L<http://www.opentick.com/dokuwiki/doku.php?id=general:standard>
 
-=head1 EVENT HANDLERS
+=head1 EVENT HANDLERS AND CALLBACKS
 
-The otFeed standard specifies a list of event handlers which you may
-overload to receive notifications for particular events.
+The methods listed below are called automatically by B<OTClient>, when
+receiving responses to requests or at other specified times.
 
 =over 4
 
-=item B<startup>
+=item startup()
 
-This is a custom extension to the main API.  This is called after the
-opentick object initializes, and is a hook for you to start placing your
-client code into, for instance, such commands as login(), etc.
+This is a custom extension to the main API.  This method is called after
+the opentick object initializes, and is a hook for you to start placing
+your application startup code into, for instance, such commands as
+L</login()>, etc.
 
 It is called as an object method, and so receives the object handle as
 the first parameter, so you can call other object methods from it.
 
 e.g.
 
- sub startup
- {
-    my( $self ) = @_;
+    sub startup
+    {
+        my( $self ) = @_;
 
-    $self->login();
+        $self->login();
 
-    return;
- }
+        return;
+    }
 
-=back
+The remainder of the methods listed below, follow the B<otFeed> Standard
+API.  The B<otFeed> Standard API specifies this list of event handlers,
+which you may overload to receive notifications for particular events.
 
-The remainder, listed below, follow the opentick.com standard.  They
-all receive the following arguments (unless otherwise noted):
+They all receive the following arguments (unless otherwise noted):
 
- ( B<$self, $request_id, $command_id, $record> )
+    ( $self, $request_id, $command_id, $record )
 
 =over 4
 
-=item B<$self>
+=item I<$self>
 
 The object handle.
 
-=item B<$request_id>
+=item I<$request_id>
 
 The numeric request ID, to match up with the response from request*
 
-=item B<$command_id>
+=item I<$command_id>
 
 The numeric command ID of this request, as delineated in the opentick
 protocol specification.
 
-=item B<$record>
+=item I<$record>
 
 An object of type POE::Component::Client::opentick::Record, containing
 the results of your request, accessible by its class methods.
 
 =back
 
-And finally, the callback list:
+B<otFeed> Standard API Callbacks:
 
-=over 4
-
-=item B<onLogin>( void )
+=item onLogin()
 
 void -- receives no arguments.
 
-=item B<onRestoreConnection>( void )
+=item onRestoreConnection()
 
 void -- receives no arguments.
 
-=item B<onStatusChanged>( $state )
+=item onStatusChanged( $state )
 
-B<$state> -- The new state you have entered.  Follows the otFeed standard.
+B<$state> -- The new state you have entered.  Follows the B<otFeed> Standard
+API.
 
-=item B<onError>( $req_id, $cmd_id, $error )
+=item onError( $req_id, $cmd_id, $error )
 
-B<$error> -- An object of type POE::Component::Client::opentick::Error.  But
-it is overloaded with formatted stringification, if you would prefer to simply
-print it.
+I<$req_id> - The request_id of the request that returned I<$error>
+
+I<$cmd_id> - The command_id of the request that returned I<$error>
+
+B<$error> -- An object of type L<POE::Component::Client::opentick::Error>.
+But it is overloaded with formatted stringification, if you would prefer to,
+you may simply print it.
 
 See L<POE::Component::Client::opentick::Error> for class methods.
 
-=item B<onMessage>( $req_id, $cmd_id, $constant, $message )
+=item onMessage()
 
-B<$constant> -- 10 = End of Data, 20 = Request cancelled
+    onMessage( $req_id, $cmd_id, $constant, $message )
 
-B<$message> -- a $string containing a text message to the same effect.
+I<$req_id> - The request_id of the corresponding request.
 
-=item B<onListExchanges>
+I<$cmd_id> - The command_id of the corresponding request.
 
-=item B<onListSymbols>
+I<$constant> -- 10 = End of Data, 20 = Request cancelled.
 
-=item B<onRealtimeTrade>
+I<$message> -- a I<$string> containing a text message to the same effect.
 
-=item B<onRealtimeQuote>
+=item onListExchanges()
 
-=item B<onRealtimeBBO>
+=item onListSymbols()
 
-=item B<onRealtimeMMQuote>
+=item onRealtimeTrade()
 
-=item B<onTodaysOHL>
+=item onRealtimeQuote()
 
-=item B<onEquityInit>
+=item onRealtimeBBO()
 
-=item B<onBookCancel>
+=item onRealtimeMMQuote()
 
-=item B<onBookChange>
+=item onTodaysOHL()
 
-=item B<onBookDelete>
+=item onEquityInit()
 
-=item B<onBookExecute>
+=item onBookCancel()
 
-=item B<onBookOrder>
+=item onBookChange()
 
-=item B<onBookPriceLevel>
+=item onBookDelete()
 
-=item B<onBookPurge>
+=item onBookExecute()
 
-=item B<onBookReplace>
+=item onBookOrder()
 
-=item B<onHistQuote>
+=item onBookPriceLevel()
 
-=item B<onHistMMQuote>
+=item onBookPurge()
 
-=item B<onHistTrade>
+=item onBookReplace()
 
-=item B<onHistBBO>
+=item onHistQuote()
 
-=item B<onHistOHLC>
+=item onHistMMQuote()
 
-=item B<onHistBookCancel>
+=item onHistTrade()
 
-=item B<onHistBookChange>
+=item onHistBBO()
 
-=item B<onHistBookDelete>
+=item onHistOHLC()
 
-=item B<onHistBookExecute>
+=item onHistBookCancel()
 
-=item B<onHistBookOrder>
+=item onHistBookChange()
 
-=item B<onHistBookPriceLevel>
+=item onHistBookDelete()
 
-=item B<onHistBookPurge>
+=item onHistBookExecute()
 
-=item B<onHistBookReplace>
+=item onHistBookOrder()
 
-=item B<onSplit>
+=item onHistBookPriceLevel()
 
-=item B<onDividend>
+=item onHistBookPurge()
 
-=item B<onOptionInit>
+=item onHistBookReplace()
+
+=item onSplit()
+
+=item onDividend()
+
+=item onOptionInit()
 
 =back
 
-NOTE: You will I<NOT> receive an B<onMessage> event upon the completion
-of B<requestListExchanges> or B<requestListSymbols>, so plan accordingly.
+B<NOTE:> You will I<NOT> receive an L</onMessage()> event upon the completion
+of L</requestListExchanges()> or L</requestListSymbols()>, so plan accordingly.
 
 =head1 ENVIRONMENT
 
 This module suite uses the following environment variables:
 
-=over 4
+=head3 OPENTICK_USER
 
-=item B<OPENTICK_USER>
-
-=item B<OPENTICK_PASS>
+=head3 OPENTICK_PASS
 
 These are used as a fallback mechanism, in case Username or Password are
-not passed as arguments to B<spawn()>.  If after exhausting these two
-possibilities, the username and password are not set, the suite will
-signal an exception and exit.
+not passed as arguments to L<POE::Component::Client::opentick/spawn()>.
+If after exhausting these two possibilities, the username and password are
+not set, the suite will throw an exception and exit.
 
 They are also provided as a security option, since many people do not desire
 to store passwords directly in their software.
 
-=item B<OPENTICK_LIB>
+=head3 OPENTICK_LIB
 
-This is part of the official opentick otFeed software.  This module suite
-will also use this environment variable when attempting to locate the
-original opentick library, to preload constant values used in the protocol.
+This is used in the official opentick B<otFeed> Standard API software.
+This module suite will also use this environment variable when attempting
+to locate the original opentick library, to preload constant values used
+in the protocol.
 
-L<POE::Component::Client::opentick::Constants.pm> attempts to load the
-original libraries from @INC, and will prepend the directory specified in
-B<OPENTICK_LIB> to the @INC search path, if it is set.
+L<POE::Component::Client::opentick::Constants> attempts to load the
+original libraries from I<@INC>, and will prepend the directory specified in
+B<OPENTICK_LIB> to the I<@INC> search path, if it is set.
 
-If the original libraries are not found, that is not a problem; we use our
-own values; but this is an attempt to maintain compatibility with the
-mainline software itself.
-
-=back
+If the original libraries are not found, this is not a problem; we use our
+own values.  This is only an attempt to maintain derived compatibility with
+the mainline software itself should they suddenly change features between
+versions of this software.
 
 =head1 SEE ALSO
 
-The L<POE> documentation
+L<POE::Component::Client::opentick>
+
+The main L<POE> documentation.
 
 L<http://poe.perl.org/>
 
@@ -1161,7 +1229,7 @@ world!
 
 =head1 AUTHOR
 
-Jason McManus (infi) -- infidel@cpan.org
+Jason McManus (INFIDEL) - C<< infidel AT cpan.org >>
 
 =head1 LICENSE
 

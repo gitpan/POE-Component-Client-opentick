@@ -6,6 +6,8 @@ package POE::Component::Client::opentick::ProtocolMsg;
 #
 #   infi/2008
 #
+#   $Id: ProtocolMsg.pm 56 2009-01-08 16:51:14Z infidel $
+#
 #   See docs/implementation-notes.txt for a detailed explanation of how
 #     this module works.
 #
@@ -13,6 +15,7 @@ package POE::Component::Client::opentick::ProtocolMsg;
 #
 
 use strict;
+use warnings;
 use Carp qw( croak );
 $Carp::CarpLevel = 2;
 use POE;
@@ -31,7 +34,7 @@ use POE::Component::Client::opentick::Output;
 
 use vars qw( $VERSION $TRUE $FALSE $KEEP $DELETE );
 
-($VERSION) = q$Revision: 48 $ =~ /(\d+)/;
+($VERSION) = q$Revision: 56 $ =~ /(\d+)/;
 *TRUE      = \1;
 *FALSE     = \0;
 *KEEP      = \0;
@@ -655,7 +658,7 @@ information.
 
 =head1 AUTHOR
 
-Jason McManus (infi) -- infidel@cpan.org
+Jason McManus (INFIDEL) - C<< infidel AT cpan.org >>
 
 =head1 LICENSE
 

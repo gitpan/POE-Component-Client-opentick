@@ -6,10 +6,13 @@ package POE::Component::Client::opentick::Error;
 #
 #   infi/2008
 #
+#   $Id: Error.pm 56 2009-01-08 16:51:14Z infidel $
+#
 #   Full POD documentation after __END__
 #
 
 use strict;
+use warnings;
 use Carp qw( carp croak confess );
 #$Carp::CarpLevel = 10;
 use Data::Dumper;
@@ -29,7 +32,7 @@ BEGIN {
     require Exporter;
     our @ISA    = qw( Exporter );
     our @EXPORT = qw( throw );
-    ($VERSION)  = q$Revision: 43 $ =~ /(\d+)/;
+    ($VERSION)  = q$Revision: 56 $ =~ /(\d+)/;
 }
 
 *TRUE    = \1;
@@ -347,7 +350,7 @@ L<http://www.opentick.com/>
 
 =head1 AUTHOR
 
-Jason McManus (infi)
+Jason McManus (INFIDEL) - C<< infidel AT cpan.org >>
 
 =head1 LICENSE
 

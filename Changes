@@ -2,10 +2,20 @@ Revision history for POE-Component-Client-opentick
 ------------------------------------------------------------
 Legend:
 BUG:    An actual found or reported bug fix.
-FIX:    Correction toward correct behavior, but unreported.
+FIX:    Change toward correct behavior, but unreported.
 DOC:    Changes to documentation.
 NEW:    New, previously non-existent feature.
 ------------------------------------------------------------
+
+0.21    Jan 09, 2009
+        BUG: Constant.pm:OTeod() wasn't checking definedness of $data_type
+        BUG: Protocol.pm:_send_notification() did string comp. with ==
+        FIX: OTClient.pm:cancelBookStream() had extraneous crap in it.
+        FIX: Added lexical 'use warnings' throughout.  (No problems were
+            caused; I run locally with PERL5OPT=-w )
+        FIX: opentick.pm was checking a couple of unitialized variables.
+        FIX: Minor warning corrections in Socket.pm, Protocol.pm
+        DOC: Clarified and unified all documentation throughout distribution.
 
 0.20    Nov 23, 2008
         BUG: I think I fixed the build errors on Solaris, Win32 and Darwin

@@ -6,10 +6,13 @@ package POE::Component::Client::opentick::Util;
 #
 #   infi/2008
 #
+#   $Id: Util.pm 56 2009-01-08 16:51:14Z infidel $
+#
 #   Full POD documentation after __END__
 #
 
 use strict;
+use warnings;
 use Carp qw( carp );
 use Data::Dumper;
 
@@ -23,7 +26,7 @@ BEGIN {
     our @EXPORT = qw( pack_binary unpack_binary count_fields check_fields
                       dump_hex    pack_macaddr  is_error     pack_bytes
                       asc2longlong  );
-    ($VERSION)  = q$Revision: 43 $ =~ /(\d+)/;
+    ($VERSION)  = q$Revision: 56 $ =~ /(\d+)/;
 }
 
 ###
@@ -242,7 +245,7 @@ perldoc -q "include path"
 
 =head1 AUTHOR
 
-Jason McManus (infi)
+Jason McManus (INFIDEL) - C<< infidel AT cpan.org >>
 
 =head1 LICENSE
 
